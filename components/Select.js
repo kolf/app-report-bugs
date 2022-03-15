@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Pressable } from "react-native";
-import { View, Text, ActionSheet, Colors } from "react-native-ui-lib";
+import { View, Text, ActionSheet, Picker } from "react-native-ui-lib";
+import { Colors } from '../config'
 
 export const Select = ({ title, value: propsValue, unstyle, onChange, options = [], placeholder, rangeKey = 'label' }) => {
   const [visible, setVisible] = React.useState(false);
@@ -12,14 +13,29 @@ export const Select = ({ title, value: propsValue, unstyle, onChange, options = 
     }
   }, [propsValue])
 
+  const memoOptions = React.useMemo(() => {
+    return [...options.map((item, index) => ({
+      label: item[rangeKey],
+      onPress() {
+        setValue(index)
+        onChange(index);
+      },
+    })), { label: "取消" }]
+  })
+
 
   const valueText = React.useMemo(() => {
-    console.log(value, 'value')
     if (value === -1) {
       return placeholder
     }
     return options[value][rangeKey]
   }, [value, options])
+
+  // console.log(options, rangeKey, value, 'value')
+  if (!options) {
+    return null
+  }
+
 
   return (
     <>
@@ -29,21 +45,13 @@ export const Select = ({ title, value: propsValue, unstyle, onChange, options = 
         </Text>
       </Pressable>
       <ActionSheet
-        // useSafeArea
-        // showCancelButton
+        useSafeArea
+        showCancelButton
         // useNativeIOS
-        // title={title}
+        title={title}
         cancelButtonIndex={options.length}
         destructiveButtonIndex={value}
-        options={[
-          ...options.map((item, index) => ({
-            label: item[rangeKey],
-            onPress() {
-              onChange(index);
-            },
-          })),
-          { label: "取消" },
-        ]}
+        options={memoOptions}
         visible={visible}
         onDismiss={(e) => setVisible(false)}
       />

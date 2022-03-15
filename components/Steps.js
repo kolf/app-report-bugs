@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { View, Text, Colors } from 'react-native-ui-lib'
+import { View, Text } from 'react-native-ui-lib'
+import { Colors } from '../config'
 
 export const Steps = ({ items, current }) => {
   return <View flexG row>
     {items.map((item, index) => <View flex center style={styles.item} key={'step-' + index}>
       <View style={{
         ...styles.circular,
-        backgroundColor: Colors[current === index ? 'success' : 'border'],
+        backgroundColor: Colors[current === index ? 'primary' : 'border'],
       }} center><Text color={Colors[current === index ? 'white' : 'mediumGray']}>{index + 1}</Text></View>
       <View style={styles.title} paddingV-12><Text h4>{item.title}</Text></View>
       <View style={styles.line} absL={index > 0} absR={index === 0}><Text>1</Text></View>

@@ -8,6 +8,7 @@ import { Filter } from "./Filter";
 import { Steps } from "./Steps";
 import { Sidebar } from "./Sidebar";
 import { FormList, FormItem } from "./Form";
+import { TableForm } from "./TableForm";
 import { FormErrorMessage } from "./FormErrorMessage";
 import { LoadingIndicator } from "./LoadingIndicator";
 
@@ -19,6 +20,7 @@ export {
   Button,
   Select,
   Steps,
+  TableForm,
   FormErrorMessage,
   LoadingIndicator,
   Sidebar,

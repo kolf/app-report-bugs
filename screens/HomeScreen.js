@@ -31,7 +31,6 @@ export const HomeScreen = () => {
     })
   }, [userTemplateList])
 
-  console.log(mekeTemplateFixedPointList(templateFixedPointList))
 
   return (
     <View style={styles.container}>

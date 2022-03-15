@@ -4,6 +4,7 @@ import { TableView } from "../components/TableView";
 import { Filter } from '../components'
 import { useDistrict, useBugCategory, useTemplateFixedPointList, useUserTemplateList } from "../hooks/useData";
 
+
 const columns = [{
   title: '序号',
   dataIndex: 'index',
@@ -143,6 +144,7 @@ export const MyListScreen = () => {
   }
 
   const handleClick = ({ id, deviceId, status, templateId }) => {
+    console.log(id)
     if (status !== '2') {
       // Taro.navigateTo({
       //   url: `/pages/create-step1/index?deviceId=${deviceId}&templateId=${templateId}`
@@ -165,7 +167,7 @@ export const MyListScreen = () => {
   return (
     <View style={styles.container}>
       <Filter items={filterItems} onChange={onFilter}></Filter>
-      <TableView columns={columns} dataSource={makeData}></TableView>
+      <TableView showDot columns={columns} dataSource={makeData} onClick={handleClick}></TableView>
     </View>
   );
 };

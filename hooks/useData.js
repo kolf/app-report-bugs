@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useCallback } from "react";
+import * as React from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { getFetcher, useRequest } from "./useRequest";
 
@@ -7,7 +7,7 @@ export const useAllTemplateData = () => {
   const { mutate } = useSWRConfig();
   const [loading, setLoading] = React.useState(false);
 
-  const run = useCallback((list) => {
+  const run = React.useCallback((list) => {
     if (!list) {
       return;
     }
@@ -45,7 +45,6 @@ export const useAllTemplateData = () => {
     }
 
     const pushResult = (res) => {
-      console.log(res, "res");
       result.push(res);
       if (result.length === total) {
         setLoading(false);
@@ -72,6 +71,7 @@ export const useMarkerTemplate = () => {
 };
 
 export const useUserTemplateList = () => {
+  // AsyncStorage.removeItem('userTemplateList')
   const { mutate } = useSWRConfig();
 
   const {
@@ -81,13 +81,13 @@ export const useUserTemplateList = () => {
   } = useSWR("userTemplateList", async () => {
     try {
       const res = await AsyncStorage.getItem("userTemplateList");
-      return res || [];
+      return res ? JSON.parse(res) : []
     } catch (error) {
       return [];
     }
   });
 
-  const _makeData = useCallback((data) => {
+  const _makeData = React.useCallback((data) => {
     return Object.entries(data).reduce((result, item) => {
       const [key, value] = item;
       if (key === "_fileList") {
@@ -110,7 +110,7 @@ export const useUserTemplateList = () => {
     }, {});
   }, []);
 
-  const get = useCallback(
+  const get = React.useCallback(
     (id) => {
       if (!list) {
         return null;
@@ -120,7 +120,7 @@ export const useUserTemplateList = () => {
     [list]
   );
 
-  const remove = useCallback(
+  const remove = React.useCallback(
     async (data) => {
       const res = await getFetcher(
         `/api/bjtzh/pest/fixed/point/saveFixedPointRecord`,
@@ -128,7 +128,7 @@ export const useUserTemplateList = () => {
         _makeData(data)
       );
       const nextList = list.filter((item) => item.id !== data.id);
-      AsyncStorage.setItem("userTemplateList", nextList);
+      AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
       mutate(
         `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=10001`
@@ -138,20 +138,20 @@ export const useUserTemplateList = () => {
   );
 
   const clearAll = () => {
-    AsyncStorage.setItem("userTemplateList", []);
+    AsyncStorage.setItem("userTemplateList", JSON.stringify([]));
     refresh([]);
   };
 
-  const add = useCallback(
+  const add = React.useCallback(
     (data) => {
       const nextList = [data, ...list];
-      AsyncStorage.setItem("userTemplateList", nextList);
+      AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
     },
     [list]
   );
 
-  const update = useCallback(
+  const update = React.useCallback(
     (data) => {
       const nextList = list.map((item) => {
         if (item.id === data.id) {
@@ -162,13 +162,13 @@ export const useUserTemplateList = () => {
         }
         return item;
       });
-      AsyncStorage.setItem("userTemplateList", nextList);
+      AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
     },
     [list]
   );
 
-  return { get, update, remove, add, data: list, isValidating, clearAll };
+  return { get, update, remove, add, data: list || [], isValidating, clearAll };
 };
 
 export const useMarkerList = () => {
@@ -218,7 +218,6 @@ export const useTemplateFixedPointList = (query) => {
     { itemId: 10001, ...query },
     {
       formatData(res) {
-        console.log(res, 'res')
         return res?.records;
       },
     }

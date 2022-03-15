@@ -26,7 +26,6 @@ export const Sidebar = ({ dataSource, show, onClose, children }) => {
       deviceId,
       templateId
     })
-    console.log(index, 'index')
   }
 
 

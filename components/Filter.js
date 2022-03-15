@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { Text, View, Button } from "react-native-ui-lib";
 import { Select } from './Select'
 import { DateRange } from './DateRange';
+import { Colors } from '../config'
 
 export const Filter = ({ items = [], onChange }) => {
   const [values, setValues] = useState({})
@@ -23,7 +24,7 @@ export const Filter = ({ items = [], onChange }) => {
     }}>
       {item.formType === 'select' && <Select options={item.restProps.options} placeholder={item.placeholder} onChange={value => handleChange(item.field, value)} />}
       {item.formType === 'dateRange' && <DateRange onChange={value => handleChange(item.field, value)} />}
-      {item.formType === 'button' && <Button size='small' borderRadius={0} label={item.restProps.text} />}
+      {item.formType === 'button' && <Button backgroundColor={Colors.primary} size='small' borderRadius={0} label={item.restProps.text} />}
     </View>)}
   </View>
 }

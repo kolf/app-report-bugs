@@ -1,9 +1,10 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { View, Text } from 'react-native-ui-lib'
+import { View, Text, Button } from 'react-native-ui-lib'
 import { View as RNView, Steps, FormList, FormItem, Select } from '../components'
 import { useWeather, useTemplate, usePosition, useUserTemplateList } from '../hooks/useData';
 import { useLocalDate } from '../hooks/useDate';
+import { Colors } from '../config'
 
 
 const stepList = [{
@@ -43,7 +44,7 @@ const treeRange = [
   }
 ]
 
-export const CreateStep1Screen = ({ route }) => {
+export const CreateStep1Screen = ({ route, navigation }) => {
   const { params } = route
   const _id = params.deviceId + '-' + params.templateId
   const { get: getUserTemplate, update: updateUserTemplate, add: addUserTemplate } = useUserTemplateList()
@@ -58,8 +59,6 @@ export const CreateStep1Screen = ({ route }) => {
     preId: currentUserTemplate?._preId
   })
 
-  console.log(weatherData, positionData, currentUserTemplate, 'currentUserTemplate')
-
   const loading = !weatherData || !templateData || !positionData;
 
   const handleChange = (field, value) => {
@@ -69,34 +68,60 @@ export const CreateStep1Screen = ({ route }) => {
     })
   }
 
+  const handleNext = () => {
+    const data = {
+      id: _id,
+      userId: '1640764667575',
+      _treeId: formData.treeId,
+      _preId: formData.preId,
+      name: positionData.name,
+      recordTime: recordTime,
+      bugName: templateData?.bugClassify?.bugName,
+      bugId: templateData.bugId,
+      itemId: templateData.itemId,
+      deviceId: params.deviceId,
+      templateId: params.templateId,
+      weather: weatherData.text,
+      temperature: weatherData.temp
+    }
+    if (currentUserTemplate) {
+      updateUserTemplate(data)
+    } else {
+      addUserTemplate(data)
+    }
+    navigation.navigate('CreateStep2', params)
+  }
+
 
   if (loading) {
     return null
   }
 
 
-  console.log(route, 'list')
+  // console.log(treeRange, templateData.treeSeedList, 'list')
 
   return (
-    <RNView isSafe><View style={styles.container}>
-      <Steps
+    <RNView isSafe>
+      <View paddingV-20><Steps
         items={stepList}
         current={0}
-      />
+      /></View>
       <FormList>
         <FormItem label='测报模板'><Text text16>{templateData.templateName}</Text></FormItem>
-        <FormItem label='树种' required><Select title='dsf' unstyle placeholder='请选择' rangeKey='treeName' options={templateData.treeSeedList || []} onChange={value => handleChange('treeId', value)} /></FormItem>
-        <FormItem label='物候' required> <Select title='dsf' unstyle placeholder='请选择物候' rangeKey='name' options={treeRange} onChange={value => handleChange('preId', value)} /></FormItem>
+        <FormItem label='树种' required><Select title='请选择树种' unstyle placeholder='请选择树种' rangeKey='treeName' options={templateData.treeSeedList || []} onChange={value => handleChange('treeId', value)} /></FormItem>
+        {/* <FormItem label='物候' required> <Select title='请选择物候' unstyle placeholder='请选择物候' rangeKey='name' options={[treeRange]} onChange={value => handleChange('preId', value)} /></FormItem> */}
         <FormItem label='天气'><Text text16>{weatherData.text}</Text></FormItem>
         <FormItem label='温度'><Text text16>{weatherData.temp || 0}℃</Text></FormItem>
         <FormItem label='监测时间'><Text text16>{recordTime}</Text></FormItem>
         <FormItem label='测报人'><Text text16>高昱</Text></FormItem>
       </FormList>
-    </View></RNView>
+      <View paddingV-40 paddingH-16>
+        <Button label='下一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
+      </View>
+    </RNView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-  },
+
 });

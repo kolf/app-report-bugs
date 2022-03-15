@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 
-const renderItem = ({ dataSource, columns }) => {
+const colors = {
+  0: '#cccccc',
+  2: '#13ce66',
+  1: '#ff0000'
+}
+
+const renderItem = ({ dataSource, showDot, columns, onClick }) => {
   return (
-    <View flex center row style={{
+    <View flex center row onClick={onClick} style={{
       ...styles.row,
       backgroundColor: dataSource.index % 2 ? '#fff' : '#eee'
     }}>
@@ -16,7 +22,8 @@ const renderItem = ({ dataSource, columns }) => {
             flex: column.width ? null : 1
           }}
         >
-          <Text gray60 center>{dataSource[column.dataIndex] || "---"}</Text>
+          <View center row>{showDot && column.dataIndex === 'index' && <View style={{ ...styles.dot, backgroundColor: colors[dataSource.status] }} />}
+            <Text gray60 center>{dataSource[column.dataIndex] || "---"}</Text></View>
         </View>
       ))}
     </View>
@@ -28,6 +35,8 @@ export const TableView = ({
   dataSource = [],
   onRefresh,
   refreshing,
+  showDot,
+  onClick,
   rowKey = "id",
 }) => {
   return (
@@ -46,7 +55,7 @@ export const TableView = ({
       </View>
       <FlatList
         ListEmptyComponent={<View />}
-        renderItem={(data) => renderItem({ dataSource: data.item, columns })}
+        renderItem={(data) => renderItem({ dataSource: data.item, columns, showDot, onClick })}
         keyExtractor={(item) => item[rowKey]}
         data={dataSource}
         style={styles.body}
@@ -74,5 +83,10 @@ const styles = StyleSheet.create({
   },
   row: {
     minHeight: 46
+  },
+  dot: {
+    width: 8, height: 8,
+    marginRight: 6,
+    borderRadius: 4
   }
 });

@@ -109,7 +109,6 @@ export const AllListScreen = () => {
       ...newQuery
     })
   }
-  console.log(data, loading, error, 'loading')
 
   return (
     <View style={styles.container}>

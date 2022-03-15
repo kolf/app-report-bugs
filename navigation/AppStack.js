@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
-import { HomeScreen, AllListScreen, MyListScreen, CreateStep1Screen } from '../screens';
+import { HomeScreen, AllListScreen, MyListScreen, CreateStep1Screen, CreateStep2Screen } from '../screens';
 
 import { Icons } from "../config/images";
 
@@ -48,6 +48,7 @@ export const AppStack = () => {
     <Stack.Navigator headerMode='none'>
       <Stack.Screen name='Tab' component={TabStack} />
       <Stack.Screen name='CreateStep1' component={CreateStep1Screen} />
+      <Stack.Screen name='CreateStep2' component={CreateStep2Screen} />
     </Stack.Navigator>
   );
 };

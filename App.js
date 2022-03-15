@@ -3,10 +3,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './navigation/RootNavigator';
 import { Colors, Typography, Spacings } from 'react-native-ui-lib';
 import { AuthenticatedUserProvider } from './providers';
-import { Colors as colorsCfg, Typography as typographyCfg } from './config'
+import { Colors as colors, Typography as typography } from './config'
 
-Colors.loadColors(colorsCfg);
-Typography.loadTypographies(typographyCfg);
+Colors.loadColors(colors);
+Typography.loadTypographies(typography);
 
 
 // Spacings.loadSpacings({
