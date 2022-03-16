@@ -262,3 +262,25 @@ export const useBugCategory = () => {
     }
   );
 };
+
+export const useLogin = () => {
+  const [data, setData] = React.useState();
+  const [error, setError] = React.useState();
+
+  const getToken = async (values) => {
+    try {
+      const res = await getFetcher('/api/dreamdeck/auth/oauth/token?grant_type=password', 'POST', values);
+      console.log(res, 'res')
+    } catch (error) {
+      console.error(error, 'error')
+    }
+  }
+
+  const getUser = (token) => {
+    getFetcher('/api/dreamdeck/admin/user/token/info', 'GET', null, token)
+  }
+
+
+
+  return { getUser, getToken, data, error }
+}

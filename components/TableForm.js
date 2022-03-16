@@ -10,7 +10,7 @@ const TableRow = ({ index, dataSource, columns, onChange, readOnly }) => {
         <View
           flex
           center
-          key={'row-' + column.dataIndex}
+          key={'col-' + column.dataIndex}
           style={styles.col}
         >
           {column.dataIndex !== 'index' && !readOnly ? <TextInput style={styles.input} value={dataSource[column.dataIndex]} onChangeText={value => onChange(index, column.dataIndex, value)} /> : <Text>{dataSource[column.dataIndex]}</Text>}
@@ -22,8 +22,6 @@ const TableRow = ({ index, dataSource, columns, onChange, readOnly }) => {
 
 export const TableForm = ({ dataSource = [], columns, loading, readOnly, onChange }) => {
   const [data, setData] = useState(dataSource)
-
-  console.log(data, columns)
 
   const total = useMemo(() => {
     return data.reduce((result, item) => {
@@ -78,7 +76,7 @@ export const TableForm = ({ dataSource = [], columns, loading, readOnly, onChang
         ))}
       </View>
       {loading ? <View><ActivityIndicator mode='center' size={48} /></View> :
-        <View>{data.map((item, index) => <TableRow index={index} readOnly={readOnly} columns={columns} dataSource={item} onChange={handleChange} />)}
+        <View>{data.map((item, index) => <TableRow key={'row-' + index} index={index} readOnly={readOnly} columns={columns} dataSource={item} onChange={handleChange} />)}
           <View row>
             {columns.map((column, index) => (
               <View

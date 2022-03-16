@@ -6,12 +6,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthStack } from './AuthStack';
 import { AppStack } from './AppStack';
 import { AuthenticatedUserContext } from '../providers';
-import { LoadingIndicator } from '../components';
+import { Loading } from '../components';
 // import { auth } from '../config';
 
 export const RootNavigator = () => {
   const { user, setUser } = useContext(AuthenticatedUserContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState();
 
   useEffect(() => {
     // onAuthStateChanged returns an unsubscriber
@@ -27,8 +27,8 @@ export const RootNavigator = () => {
     // return unsubscribeAuthStateChanged;
   }, [user]);
 
-  if (isLoading) {
-    return <LoadingIndicator />;
+  if (loading) {
+    return <Loading />;
   }
 
   return (

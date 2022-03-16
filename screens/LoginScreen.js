@@ -1,38 +1,45 @@
-import React, { useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 // import { signInWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
-import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
+import { View, Text, Button } from 'react-native-ui-lib'
+import { AuthenticatedUserContext } from '../providers';
+import { View as RNView, TextInput, Logo, FormErrorMessage } from '../components';
 import { Images, Colors, auth } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
+import { useLogin } from '../hooks/useData'
 import { loginValidationSchema } from '../utils';
 
 export const LoginScreen = ({ navigation }) => {
-  const [errorState, setErrorState] = useState('');
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { getToken, getUser } = useLogin()
   const { passwordVisibility, handlePasswordVisibility, rightIcon } =
     useTogglePasswordVisibility();
 
-  const handleLogin = values => {
-    // const { email, password } = values;
-    // signInWithEmailAndPassword(auth, email, password).catch(error =>
+  const handleLogin = async (values) => {
+    setUser({})
+    // const res = await getToken(values)
+    // console.log(values, res, 'values')
+
+    // const { username, password } = values;
+    // signInWithEmailAndPassword(auth, username, password).catch(error =>
     //   setErrorState(error.message)
     // );
-    navigation.navigate('Home')
+    // navigation.navigate('Tab')
   };
   return (
     <>
-      <View isSafe style={styles.container}>
+      <RNView isSafe style={styles.container}>
         <KeyboardAwareScrollView enableOnAndroid={true}>
           {/* LogoContainer: consits app logo and screen title */}
-          <View style={styles.logoContainer}>
+          <View center paddingV-40>
             <Logo uri={Images.logo} />
-            <Text style={styles.screenTitle}>Welcome back!</Text>
+            <Text text40 marginT-20>智慧病虫害</Text>
           </View>
           <Formik
             initialValues={{
-              email: '',
+              username: '',
               password: ''
             }}
             validationSchema={loginValidationSchema}
@@ -49,25 +56,24 @@ export const LoginScreen = ({ navigation }) => {
               <>
                 {/* Input fields */}
                 <TextInput
-                  name='email'
-                  leftIconName='email'
-                  placeholder='Enter email'
+                  name='username'
+                  leftIconName='walk'
+                  placeholder='输入用户名'
                   autoCapitalize='none'
-                  keyboardType='email-address'
-                  textContentType='emailAddress'
+                  textContentType='name'
                   autoFocus={true}
-                  value={values.email}
-                  onChangeText={handleChange('email')}
-                  onBlur={handleBlur('email')}
+                  value={values.username}
+                  onChangeText={handleChange('username')}
+                  onBlur={handleBlur('username')}
                 />
                 <FormErrorMessage
-                  error={errors.email}
-                  visible={touched.email}
+                  error={errors.username}
+                  visible={touched.username}
                 />
                 <TextInput
                   name='password'
                   leftIconName='key-variant'
-                  placeholder='Enter password'
+                  placeholder='输入密码'
                   autoCapitalize='none'
                   autoCorrect={false}
                   secureTextEntry={passwordVisibility}
@@ -82,19 +88,13 @@ export const LoginScreen = ({ navigation }) => {
                   error={errors.password}
                   visible={touched.password}
                 />
-                {/* Display Screen Error Mesages */}
-                {errorState !== '' ? (
-                  <FormErrorMessage error={errorState} visible={true} />
-                ) : null}
                 {/* Login button */}
-                <Button style={styles.button} onPress={handleSubmit}>
-                  <Text style={styles.buttonText}>Login</Text>
-                </Button>
+                <View paddingT-30><Button disabled={errors.password || errors.username} label='登陆' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleSubmit} /></View>
               </>
             )}
           </Formik>
         </KeyboardAwareScrollView>
-      </View>
+      </RNView>
     </>
   );
 };
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   logoContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingTop: 50
   },
   screenTitle: {
     fontSize: 32,

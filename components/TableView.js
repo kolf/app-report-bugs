@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, Pressable } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 
 const colors = {
@@ -10,23 +10,25 @@ const colors = {
 
 const renderItem = ({ dataSource, showDot, columns, onClick }) => {
   return (
-    <View flex center row onClick={onClick} style={{
-      ...styles.row,
-      backgroundColor: dataSource.index % 2 ? '#fff' : '#eee'
-    }}>
-      {columns.map((column) => (
-        <View
-          key={column.dataIndex}
-          style={{
-            width: column.width,
-            flex: column.width ? null : 1
-          }}
-        >
-          <View center row>{showDot && column.dataIndex === 'index' && <View style={{ ...styles.dot, backgroundColor: colors[dataSource.status] }} />}
-            <Text gray60 center>{dataSource[column.dataIndex] || "---"}</Text></View>
-        </View>
-      ))}
-    </View>
+    <Pressable onPress={onClick}>
+      <View flex center row style={{
+        ...styles.row,
+        backgroundColor: dataSource.index % 2 ? '#fff' : '#eee'
+      }}>
+        {columns.map((column) => (
+          <View
+            key={column.dataIndex}
+            style={{
+              width: column.width,
+              flex: column.width ? null : 1
+            }}
+          >
+            <View center row>{showDot && column.dataIndex === 'index' && <View style={{ ...styles.dot, backgroundColor: colors[dataSource.status] }} />}
+              <Text gray60 center>{dataSource[column.dataIndex] || "---"}</Text></View>
+          </View>
+        ))}
+      </View>
+    </Pressable>
   );
 }
 
@@ -55,7 +57,12 @@ export const TableView = ({
       </View>
       <FlatList
         ListEmptyComponent={<View />}
-        renderItem={(data) => renderItem({ dataSource: data.item, columns, showDot, onClick })}
+        renderItem={(data) => renderItem({
+          dataSource: data.item, columns, showDot, onClick() {
+            console.log(data.item, 'dfd')
+            onClick(data.item)
+          }
+        })}
         keyExtractor={(item) => item[rowKey]}
         data={dataSource}
         style={styles.body}

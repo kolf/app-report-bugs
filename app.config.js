@@ -21,5 +21,8 @@ export default {
     ios: {
       supportsTablet: true
     },
+    "android": {
+      "package": "com.picasa.buglist"
+    }
   }
 };

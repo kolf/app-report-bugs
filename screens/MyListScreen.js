@@ -50,7 +50,7 @@ const makeQuery = (values) => {
 }
 
 
-export const MyListScreen = () => {
+export const MyListScreen = ({ navigation }) => {
   const [query, setQuery] = useState({
     current: 1,
     size: 15,
@@ -144,16 +144,17 @@ export const MyListScreen = () => {
   }
 
   const handleClick = ({ id, deviceId, status, templateId }) => {
-    console.log(id)
     if (status !== '2') {
-      // Taro.navigateTo({
-      //   url: `/pages/create-step1/index?deviceId=${deviceId}&templateId=${templateId}`
-      // })
+      navigation.navigate('CreateStep1', {
+        deviceId,
+        templateId
+      })
       return
     }
-    // Taro.navigateTo({
-    //   url: `/pages/details/index?id=${id}&deviceId=${deviceId}`
-    // })
+    navigation.navigate('Details', {
+      deviceId,
+      id
+    })
   }
 
   const onFilter = values => {

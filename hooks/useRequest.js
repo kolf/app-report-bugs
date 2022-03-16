@@ -10,12 +10,13 @@ const API_ROOT = {
     "http://editservice-vcg-com.cb16adeacafeb4b9b988ae5d7e8bf0fc1.cn-beijing.alicontainer.com",
 };
 
-export const getFetcher = async (url, method, data) => {
+export const getFetcher = async (url, method, data, headers) => {
   const apiRootKey = (url.match(/(\/api\/\w+)\//) || [])[1];
   const result = await fetch(url.replace(apiRootKey, API_ROOT[apiRootKey]), {
     method: method || "GET",
     headers: {
       "Content-Type": "application/json",
+      ...headers
     },
     data,
   })

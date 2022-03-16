@@ -2,9 +2,7 @@ import * as React from 'react';
 import { Image, StatusBar } from "react-native";
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-
-import { HomeScreen, AllListScreen, MyListScreen, CreateStep1Screen, CreateStep2Screen } from '../screens';
+import { HomeScreen, AllListScreen, MyListScreen, CreateStep1Screen, CreateStep2Screen, DetailsScreen } from '../screens';
 
 import { Icons } from "../config/images";
 
@@ -49,6 +47,7 @@ export const AppStack = () => {
       <Stack.Screen name='Tab' component={TabStack} />
       <Stack.Screen name='CreateStep1' component={CreateStep1Screen} />
       <Stack.Screen name='CreateStep2' component={CreateStep2Screen} />
+      <Stack.Screen name='Details' component={DetailsScreen} />
     </Stack.Navigator>
   );
 };

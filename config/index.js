@@ -1,4 +1,4 @@
-import { Images } from './images';
+import { Images, Icons } from './images';
 import { Colors, Typography } from './theme';
 
-export { Images, Colors, Typography };
+export { Images, Icons, Colors, Typography };

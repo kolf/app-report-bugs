@@ -11,8 +11,9 @@ import { FormList, FormItem } from "./Form";
 import { TableForm } from "./TableForm";
 import { CoverItem, CoverList } from "./CoverList";
 import { FormErrorMessage } from "./FormErrorMessage";
-import { LoadingIndicator } from "./LoadingIndicator";
+import { Loading } from "./Loading";
 import { MapPanel } from './MapPanel'
+import { ImagePicker } from './ImagePicker'
 import AmapView from "./AmapView";
 
 export {
@@ -25,10 +26,10 @@ export {
   Steps,
   TableForm,
   FormErrorMessage,
-  LoadingIndicator,
+  Loading,
   Sidebar,
   Filter,
   FormList,
   FormItem,
-  CoverItem, CoverList, MapPanel, AmapView
+  CoverItem, CoverList, MapPanel, AmapView, ImagePicker
 };

@@ -44,7 +44,7 @@ const makeQuery = (values) => {
 }
 
 
-export const AllListScreen = () => {
+export const AllListScreen = ({ navigation }) => {
   const [query, setQuery] = useState({
     current: 1,
     size: 15,
@@ -97,9 +97,10 @@ export const AllListScreen = () => {
   }, [districtRange, bugCategoryRange])
 
   const handleClick = ({ id, deviceId }) => {
-    // Taro.navigateTo({
-    //   url: `/pages/details/index?id=${id}&deviceId=${deviceId}`
-    // })
+    navigation.navigate('Details', {
+      deviceId,
+      id
+    })
   }
 
   const onFilter = values => {
@@ -113,7 +114,7 @@ export const AllListScreen = () => {
   return (
     <View style={styles.container}>
       <Filter items={filterItems} onChange={onFilter}></Filter>
-      <TableView columns={columns} dataSource={makeData}></TableView>
+      <TableView columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };

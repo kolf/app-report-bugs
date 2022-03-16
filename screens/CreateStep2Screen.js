@@ -1,8 +1,8 @@
 import * as React from "react";
 import { StyleSheet, ScrollView, FlatList } from "react-native";
-import { View, Text, Button } from 'react-native-ui-lib'
+import { View, Text, Button, Incubator } from 'react-native-ui-lib'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View as RNView, Steps, FormList, FormItem, TableForm } from '../components'
+import { View as RNView, Steps, FormList, FormItem, TableForm, ImagePicker } from '../components'
 import { useTemplate, useUserTemplateList } from '../hooks/useData';
 import { makeTableCellData } from '../lib/makeData'
 import { Colors } from '../config'
@@ -22,7 +22,6 @@ const getTableDataIndexMap = (columns) => {
 }
 
 export const CreateStep2Screen = ({ route, navigation }) => {
-  const insets = useSafeAreaInsets();
   const { params } = route
   const _id = params.deviceId + '-' + params.templateId
   const { get: getUserTemplate, update: updateUserTemplate, remove: removeUserTemplate } = useUserTemplateList()
@@ -124,25 +123,45 @@ export const CreateStep2Screen = ({ route, navigation }) => {
   // console.log(treeRange, templateData.treeSeedList, 'list')
 
   return (
-    <ScrollView style={{ paddingTop: insets.top }}>
-      <View paddingV-20><Steps
-        items={stepList}
-        current={1}
-      /></View>
-
-      <View>
+    <RNView isSafe>
+      <ScrollView>
+        <View paddingV-20><Steps
+          items={stepList}
+          current={1}
+        /></View>
         <TableForm columns={columns} dataSource={memoData} rowKey='index' onChange={handleChange.bind(null, 'tableData')} />
-      </View>
 
-      <View paddingT-40 paddingH-16 paddingB-90>
-        <View paddingV-8>
-          <Button label='上一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.white} color={Colors.black} outlineColor={Colors.primary} onPress={handlePrev}></Button>
+        <View paddingV-12 paddingH-16 row><Text text70>上传图片</Text><Text marginT-4 color={Colors.error}>*</Text></View>
+        <View backgroundColor='#fff' paddingV-12>
+          <ImagePicker
+            showAddBtn={true}
+            files={[1, 2]?.map(item => ({ url: `https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg` }))}
+          />
         </View>
-        <View paddingV-8>
-          <Button label='提交' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
+        <View paddingV-12 paddingH-16><Text text70>备注</Text></View>
+        <View padding-24 backgroundColor='#fff'>
+          <Incubator.TextField
+            placeholder='请输入'
+            disabled
+            showCharCounter
+            maxLength={200}
+            fieldStyle={{
+              height: 100,
+              alignItems: 'flex-start'
+            }}
+          />
         </View>
-      </View>
-    </ScrollView>
+
+        <View paddingT-40 paddingH-16 paddingB-40>
+          <View paddingV-8>
+            <Button label='上一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.white} color={Colors.black} outlineColor={Colors.primary} onPress={handlePrev}></Button>
+          </View>
+          <View paddingV-8>
+            <Button label='提交' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
+          </View>
+        </View>
+      </ScrollView>
+    </RNView>
   );
 };
 

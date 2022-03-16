@@ -14,4 +14,5 @@ export const Icons = {
   tab2Active: require('../assets/tab2_active.png'),
   tab3: require('../assets/tab3.png'),
   tab3Active: require('../assets/tab3_active.png'),
+  add: require('../assets/add.png')
 }

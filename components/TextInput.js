@@ -17,13 +17,13 @@ export const TextInput = ({
     <View
       style={{
         backgroundColor: Colors.white,
-        borderRadius: 8,
+        borderRadius: 4,
         flexDirection: 'row',
         padding: 12,
         marginVertical: 12,
         width,
         borderWidth: 1,
-        borderColor: Colors.mediumGray
+        borderColor: Colors.border
       }}
     >
       {leftIconName ? (
@@ -50,7 +50,7 @@ export const TextInput = ({
             name={rightIcon}
             size={22}
             color={Colors.mediumGray}
-            style={{ marginRight: 10 }}
+            style={{ marginRight: 0 }}
           />
         </Button>
       ) : null}
