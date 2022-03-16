@@ -3,7 +3,7 @@ import 'dotenv/config';
 export default {
   expo: {
     name: '智慧病虫害',
-    slug: 'expo-firebase',
+    slug: 'buglist',
     privacy: 'public',
     platforms: ['ios', 'android'],
     version: '0.15.0',

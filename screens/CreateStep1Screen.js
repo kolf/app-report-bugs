@@ -13,7 +13,7 @@ const stepList = [{
   title: '监测数据采集'
 }]
 
-const treeRange = [
+const treeTypeList = [
   {
     id: 1,
     name: "萌芽期"
@@ -109,7 +109,7 @@ export const CreateStep1Screen = ({ route, navigation }) => {
       <FormList>
         <FormItem label='测报模板'><Text text16>{templateData.templateName}</Text></FormItem>
         <FormItem label='树种' required><Select title='请选择树种' unstyle placeholder='请选择树种' rangeKey='treeName' options={templateData.treeSeedList || []} onChange={value => handleChange('treeId', value)} /></FormItem>
-        {/* <FormItem label='物候' required> <Select title='请选择物候' unstyle placeholder='请选择物候' rangeKey='name' options={[treeRange]} onChange={value => handleChange('preId', value)} /></FormItem> */}
+        <FormItem label='物候' required><Select title='请选择物候' unstyle placeholder='请选择物候' rangeKey='name' options={treeTypeList} onChange={value => handleChange('preId', value)} /></FormItem>
         <FormItem label='天气'><Text text16>{weatherData.text}</Text></FormItem>
         <FormItem label='温度'><Text text16>{weatherData.temp || 0}℃</Text></FormItem>
         <FormItem label='监测时间'><Text text16>{recordTime}</Text></FormItem>

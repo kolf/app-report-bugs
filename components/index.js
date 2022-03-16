@@ -9,8 +9,11 @@ import { Steps } from "./Steps";
 import { Sidebar } from "./Sidebar";
 import { FormList, FormItem } from "./Form";
 import { TableForm } from "./TableForm";
+import { CoverItem, CoverList } from "./CoverList";
 import { FormErrorMessage } from "./FormErrorMessage";
 import { LoadingIndicator } from "./LoadingIndicator";
+import { MapPanel } from './MapPanel'
+import AmapView from "./AmapView";
 
 export {
   View,
@@ -27,4 +30,5 @@ export {
   Filter,
   FormList,
   FormItem,
+  CoverItem, CoverList, MapPanel, AmapView
 };

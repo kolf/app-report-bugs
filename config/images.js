@@ -1,5 +1,10 @@
 export const Images = {
   logo: require('../assets/flame.png'),
+  fangchong1: require('../assets/fangchong1.png'),
+  fangchong2: require('../assets/fangchong2.png'),
+  swiper8: require('../assets/swiper8.png'),
+  swiper9: require('../assets/swiper9.png'),
+  swiper10: require('../assets/swiper10.png'),
 };
 
 export const Icons = {

@@ -1,49 +1,29 @@
 import * as React from 'react';
-import { View, StyleSheet, StatusBar, Text, NavigationContainer } from "react-native";
-import { Sidebar } from '../components'
-import { useMarkerList, useTemplateFixedPoint, useAllTemplateData, useMarkerTemplate, useUserTemplateList } from '../hooks/useData'
-
+import { StyleSheet } from "react-native";
+import { TabController, View, Text } from 'react-native-ui-lib'
+import { MapScreen } from './MapScreen';
+import { IntelligentScreen } from './IntelligentScreen';
+import { NewsScreen } from './NewsScreen';
 
 export const HomeScreen = () => {
-  const [showMenu, setShowMenu] = React.useState(false)
-  const { data: markerList } = useMarkerList()
-  const { data: userTemplateList } = useUserTemplateList()
-  const { run: getMarkerTemplate } = useMarkerTemplate()
-  const { data: templateFixedPointList } = useTemplateFixedPoint()
-  const { run, loading: allTemplateDataLoading } = useAllTemplateData()
-  // const { data: markerList } = useMarkerList();
-
-  // console.log(markerList, 'list')
-  const mekeTemplateFixedPointList = React.useCallback((data) => {
-    if (!data) {
-      return []
-    }
-    return data.map(item => {
-      const id = item.deviceId + '-' + item.templateId
-      if ((userTemplateList || []).find(u => u.id === id)) {
-        return {
-          ...item,
-          id,
-          isWarn: '2'
-        }
-      }
-      return { ...item, id }
-    })
-  }, [userTemplateList])
-
-
-  return (
-    <View style={styles.container}>
-      <Sidebar show={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onClose={() => setShowMenu(false)} >
-
-      </Sidebar>
-
+  return <TabController items={[{ label: '虫情测报' }, { label: '智能监测' }, { label: '防虫资讯' }]}>
+    <TabController.TabBar enableShadows />
+    <View flex>
+      <TabController.TabPage index={0}>
+        <MapScreen />
+      </TabController.TabPage>
+      <TabController.TabPage index={1} lazy>
+        <IntelligentScreen />
+      </TabController.TabPage>
+      <TabController.TabPage index={2} lazy>
+        <NewsScreen></NewsScreen>
+      </TabController.TabPage>
     </View>
-  );
+  </TabController>
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  root: {
+
   },
 });

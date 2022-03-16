@@ -180,12 +180,11 @@ export const useMarkerList = () => {
 };
 
 export const useBugTotal = () => {
-  const { data } = useRequest(
+  return useRequest(
     `/api/bjtzh/pest/detail/getTodayPestNum/25`,
     null,
     {}
   );
-  return data;
 };
 
 export const useDetails = (id) => {

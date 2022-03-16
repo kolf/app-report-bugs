@@ -16,8 +16,8 @@ const TabStack = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen name='Home' component={HomeScreen} options={{
-        tabBarLabel: '地图',
-        title: '地图',
+        tabBarLabel: '首页',
+        title: '首页',
         tabBarActiveTintColor: '#000000',
         tabBarIcon: ({ size, focused }) => {
           return <Image name="home" source={focused ? Icons.tab1Active : Icons.tab1} style={{ width: size * 1.2, height: size * 1.2 }} />
