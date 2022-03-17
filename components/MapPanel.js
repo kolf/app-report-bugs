@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   root: {
     backgroundColor: "#fff",
     borderRadius: 6,
-    overflow: "hidden",
+    // overflow: "hidden",
   },
   title: {
     borderBottomWidth: 1,

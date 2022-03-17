@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import * as React from "react";
 import { StyleSheet, FlatList } from "react-native";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
@@ -14,11 +14,20 @@ const renderItem = ({ item, onClick }) => {
 }
 
 
-export const Sidebar = ({ dataSource, show, onClose, children }) => {
+export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange }) => {
   const navigation = useNavigation()
-  const handleDrawerSlide = (e) => {
+  const ref = React.useRef(null)
+  const openRef = React.useRef(propsOpen)
 
-  }
+  React.useEffect(() => {
+    // console.log(propsOpen)
+    if (ref.current && openRef.current !== null && openRef.current !== propsOpen) {
+      openRef.current = propsOpen
+      ref.current[propsOpen ? 'openDrawer' : 'closeDrawer']()
+    }
+
+  }, [propsOpen, ref, openRef])
+
 
   const handleClick = index => {
     const { deviceId, templateId } = dataSource[index]
@@ -26,6 +35,11 @@ export const Sidebar = ({ dataSource, show, onClose, children }) => {
       deviceId,
       templateId
     })
+  }
+
+  const handleOpen = open => {
+    openRef.current = open
+    onOpenChange(open)
   }
 
 
@@ -49,11 +63,13 @@ export const Sidebar = ({ dataSource, show, onClose, children }) => {
   return (
     <DrawerLayout
       drawerWidth={260}
+      ref={(el) => ref.current = el}
       drawerPosition={DrawerLayout.positions.Right}
       drawerType="front"
       drawerBackgroundColor="#fff"
       renderNavigationView={renderDrawer}
-      onDrawerSlide={handleDrawerSlide}
+      onDrawerOpen={() => handleOpen(true)}
+      onDrawerClose={() => handleOpen(false)}
     >
       {children}
     </DrawerLayout>
@@ -63,14 +79,12 @@ export const Sidebar = ({ dataSource, show, onClose, children }) => {
 const styles = StyleSheet.create({
   root: {
 
-  }, listItem: {
-    // padding: 8,
+  },
+  listItem: {
     height: 50,
     alignItems: 'center',
     borderBottomColor: "#eeeeee",
     borderBottomWidth: 1,
     paddingHorizontal: 8
-
-    // backgroundColor: '#f00'
   }
 });

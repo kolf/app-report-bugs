@@ -5,6 +5,7 @@ import { MapScreen } from './MapScreen';
 import { IntelligentScreen } from './IntelligentScreen';
 import { NewsScreen } from './NewsScreen';
 
+
 export const HomeScreen = () => {
   return <TabController items={[{ label: '虫情测报' }, { label: '智能监测' }, { label: '防虫资讯' }]}>
     <TabController.TabBar enableShadows />

@@ -42,6 +42,6 @@ const styles = StyleSheet.create({
   },
   content: {
     borderRadius: 6,
-    overflow: 'hidden'
+    // overflow: 'hidden'
   }
 })

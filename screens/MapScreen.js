@@ -1,8 +1,12 @@
 import * as React from 'react';
-import { View, StyleSheet, StatusBar, Text, NavigationContainer } from "react-native";
-import { Sidebar, AmapView } from '../components'
+import { StyleSheet, StatusBar, Text, Pressable } from "react-native";
+import { View } from 'react-native-ui-lib'
+import { Sidebar, Icon } from '../components'
 import { useMarkerList, useTemplateFixedPoint, useAllTemplateData, useMarkerTemplate, useUserTemplateList } from '../hooks/useData'
 
+const FloatButton = ({ icon, onClick }) => {
+  return <Pressable onPress={onClick}><View borderRadius={4} backgroundColor='#fff' width={40} height={40} center><Icon name={icon} size={24} /></View></Pressable>
+}
 
 export const MapScreen = () => {
   const [showMenu, setShowMenu] = React.useState(false)
@@ -33,17 +37,19 @@ export const MapScreen = () => {
 
 
   return (
-    <View style={styles.container}>
-      <Sidebar show={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onClose={() => setShowMenu(false)}>
-
+    <View style={styles.root}>
+      <Sidebar open={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onOpenChange={setShowMenu}>
+        <View absR style={styles.btnGroup}><FloatButton icon='menu' onClick={() => setShowMenu(true)} /></View>
       </Sidebar>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
   },
+  btnGroup: {
+    paddingTop: 30, paddingRight: 20
+  }
 });
