@@ -16,39 +16,19 @@ const headerTitle = {
   tabBarActiveTintColor: '#000000',
 }
 
+const tabs = [{ name: 'Home', title: '首页', component: MapScreen }, { name: 'MyList', title: '我的上报', component: MyListScreen }, { name: 'AllList', title: '历史上报', component: AllListScreen }]
+
 const TabStack = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name='Home' component={MapScreen} options={{
+      {tabs.map((tab, index) => <Tab.Screen key={tab.name} name={tab.name} component={tab.component} options={{
         ...headerTitle,
-        headerStyle: {
-          borderBottomColor: '#f5f5f5', borderBottomWidth: 1,
-        },
-        // headerShown: false,
-        tabBarLabel: '首页',
-        title: '首页',
+        tabBarLabel: tab.title,
+        title: tab.title,
         tabBarIcon: ({ size, focused }) => {
-          return <Image name="home" source={focused ? Icons.tab1Active : Icons.tab1} style={{ width: size * 1.2, height: size * 1.2 }} />
+          return <Image source={focused ? Icons[`tab${index + 1}Active`] : Icons[`tab${index + 1}`]} style={{ width: size * 1.2, height: size * 1.2 }} />
         },
-      }} />
-      <Tab.Screen name='MyList' component={MyListScreen} options={{
-        ...headerTitle,
-        // headerShown: false,
-        tabBarLabel: '我的上报',
-        title: '我的上报',
-        tabBarIcon: ({ size, focused }) => {
-          return <Image name="home" source={focused ? Icons.tab3Active : Icons.tab3} style={{ width: size * 1.2, height: size * 1.2 }} />
-        },
-      }} />
-      <Tab.Screen name='AllList' component={AllListScreen} options={{
-        ...headerTitle,
-        // headerShown: false,
-        tabBarLabel: '历史上报',
-        title: '历史上报',
-        tabBarIcon: ({ size, focused }) => {
-          return <Image name="home" source={focused ? Icons.tab2Active : Icons.tab2} style={{ width: size, height: size }} />
-        },
-      }} />
+      }} />)}
     </Tab.Navigator>
   );
 }
