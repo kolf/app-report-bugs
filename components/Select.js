@@ -18,7 +18,7 @@ export const Select = ({ title, value: propsValue, unstyle, onChange, options = 
       label: item[rangeKey],
       onPress() {
         setValue(index)
-        onChange(index);
+        onChange && onChange(index);
       },
     })), { label: "取消" }]
   })

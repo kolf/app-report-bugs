@@ -1,7 +1,7 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { View, Text, Button } from 'react-native-ui-lib'
-import { View as RNView, Steps, FormList, FormItem, Select } from '../components'
+import { View as RNView, Steps, FormList, FormItem, Select, Loading } from '../components'
 import { useWeather, useTemplate, usePosition, useUserTemplateList } from '../hooks/useData';
 import { useLocalDate } from '../hooks/useDate';
 import { Colors } from '../config'
@@ -94,14 +94,14 @@ export const CreateStep1Screen = ({ route, navigation }) => {
 
 
   if (loading) {
-    return null
+    return <Loading />
   }
 
 
   // console.log(treeRange, templateData.treeSeedList, 'list')
 
   return (
-    <RNView isSafe>
+    <ScrollView>
       <View paddingV-20><Steps
         items={stepList}
         current={0}
@@ -118,7 +118,7 @@ export const CreateStep1Screen = ({ route, navigation }) => {
       <View paddingV-40 paddingH-16>
         <Button label='下一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
       </View>
-    </RNView>
+    </ScrollView>
   );
 };
 

@@ -4,9 +4,11 @@ import { Logo } from "./Logo";
 import { Icon } from "./Icon";
 import { Button } from "./Button";
 import { Select } from "./Select";
-import { Filter } from "./Filter";
+import { DateRange } from "./DateRange";
+import { InlineForm } from "./InlineForm";
 import { Steps } from "./Steps";
 import { Sidebar } from "./Sidebar";
+import { TableView } from "./TableView";
 import { FormList, FormItem } from "./Form";
 import { TableForm } from "./TableForm";
 import { CoverItem, CoverList } from "./CoverList";
@@ -28,8 +30,9 @@ export {
   FormErrorMessage,
   Loading,
   Sidebar,
-  Filter,
+  InlineForm,
   FormList,
   FormItem,
-  CoverItem, CoverList, MapPanel, AmapView, ImagePicker
+  DateRange,
+  CoverItem, CoverList, MapPanel, AmapView, ImagePicker, TableView
 };

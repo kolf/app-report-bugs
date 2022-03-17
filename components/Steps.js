@@ -10,7 +10,7 @@ export const Steps = ({ items, current }) => {
         ...styles.circular,
         backgroundColor: Colors[current === index ? 'primary' : 'border'],
       }} center><Text color={Colors[current === index ? 'white' : 'mediumGray']}>{index + 1}</Text></View>
-      <View style={styles.title} paddingV-12><Text h4>{item.title}</Text></View>
+      <View style={styles.title} paddingT-6><Text text70>{item.title}</Text></View>
       <View style={styles.line} absL={index > 0} absR={index === 0}><Text>1</Text></View>
     </View>)}
   </View>

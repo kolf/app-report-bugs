@@ -74,7 +74,7 @@ export default function AmapView({
       geolocationEnabled={true}
       ref={amapRef}
       style={[styles.container, { width, height }]}
-      source={require("./amap.html")}
+      source={source}
       onMessage={handleMessage}
       onLoadEnd={() => {
         setLoading(false);

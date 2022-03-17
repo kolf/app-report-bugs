@@ -8,33 +8,31 @@ const gap = 6
 
 
 export const ImagePicker = ({ files, showAddBtn }) => {
-
-
-  // return <GridView
-  //   items={files}
-  //   numColumns={3}
-  //   renderCustomItem={(file) => renderCustomItem(file)}
-  // />
-
-  return <View row flexWrap paddingH-12>
+  return <View style={styles.root} paddingH-12>
     {files.map((file, index) => <View paddingV-6 width={imageWidth} center key={file.url + index}>
-      <Image borderRadius={4} source={{ uri: file.url }} aspectRatio={1} height={imageWidth - gap * 2} width={imageWidth - gap * 2} />
+      <Image source={{ uri: file.url }} style={{
+        height: imageWidth - gap * 2, width: imageWidth - gap * 2,
+        backgroundColor: '#f5f5f5'
+      }} />
     </View>)}
     {showAddBtn && <View padding-6 height={imageWidth} width={imageWidth}>
-      <View style={styles.add} borderRadius={4} flex width={'100%'} center>
-        <Image aspectRatio={1} height={60} assetName="add" assetGroup="icons" />
+      <View style={styles.add} flex center>
+        <Image aspectRatio={1} style={{ width: 60, height: 60 }} assetName="add" assetGroup="icons" />
       </View>
-
     </View>}
   </View>
 }
 
 const styles = StyleSheet.create({
   root: {
-
+    display: 'flex',
+    flexDirection: "row",
+    flexWrap: 'wrap',
+    minHeight: imageWidth
   },
   add: {
     borderWidth: 1,
-    borderColor: Colors.border
+    borderColor: Colors.border,
+    width: '100%'
   }
 })

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { TableView } from "../components/TableView";
-import { Filter } from '../components'
+import { Filter, TableView, InlineForm, DateRange, Select } from '../components'
 import { useDistrict, useBugCategory, useTemplateFixedPointList } from "../hooks/useData";
 
 const columns = [{
@@ -70,32 +69,6 @@ export const AllListScreen = ({ navigation }) => {
     })
   }, [query.current, data])
 
-  const filterItems = useMemo(() => {
-    return [{
-      field: 'bugId',
-      formType: 'select',
-      placeholder: '请选择虫害',
-      restProps: {
-        options: [defaultOption, ...bugCategoryRange],
-      }
-    }, {
-      field: 'district',
-      formType: 'select',
-      placeholder: '请选择区域',
-      restProps: {
-        options: [{ label: '全部' }, ...districtRange],
-      }
-    }, {
-      field: 'date',
-      formType: 'dateRange',
-      placeholder: '请选择时间',
-      style: {
-        width: '60%',
-        flex: 'auto'
-      }
-    }]
-  }, [districtRange, bugCategoryRange])
-
   const handleClick = ({ id, deviceId }) => {
     navigation.navigate('Details', {
       deviceId,
@@ -112,15 +85,19 @@ export const AllListScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <Filter items={filterItems} onChange={onFilter}></Filter>
+    <View style={styles.root}>
+      <InlineForm onChange={onFilter}>
+        <Select placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
+        <Select placeholder='请选择区域' options={[{ label: '全部' }, ...districtRange]} name='district' />
+        <DateRange name='date' width='70%' />
+      </InlineForm>
       <TableView columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
   },
 });

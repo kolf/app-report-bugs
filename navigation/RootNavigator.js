@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Image, StatusBar } from "react-native";
+
 import { NavigationContainer } from '@react-navigation/native';
 // import { onAuthStateChanged } from 'firebase/auth';
 
@@ -33,7 +33,6 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      <StatusBar barStyle="dark-content" />
       {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

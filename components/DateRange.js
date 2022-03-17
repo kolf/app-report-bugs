@@ -39,7 +39,7 @@ export const DateRange = ({ onChange }) => {
     <View style={styles.root}>
       <DateTimePicker style={styles.date} {...dateProps} placeholder='开始时间' onChange={value => handleChange(0, value)} />
       <View style={{ width: '10%' }}><Text style={{ textAlign: 'center' }}>-</Text></View>
-      <DateTimePicker style={styles.date} {...dateProps} placeholder='开始时间' onChange={value => handleChange(1, value)} />
+      <DateTimePicker style={styles.date} {...dateProps} placeholder='结束时间' onChange={value => handleChange(1, value)} />
     </View>
   );
 };

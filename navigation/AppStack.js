@@ -14,6 +14,7 @@ const TabStack = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen name='Home' component={HomeScreen} options={{
+        // headerShown: false,
         tabBarLabel: '首页',
         title: '首页',
         tabBarActiveTintColor: '#000000',
@@ -22,6 +23,7 @@ const TabStack = () => {
         },
       }} />
       <Tab.Screen name='MyList' component={MyListScreen} options={{
+        // headerShown: false,
         tabBarLabel: '我的上报',
         title: '我的上报',
         tabBarActiveTintColor: '#000000',
@@ -30,6 +32,7 @@ const TabStack = () => {
         },
       }} />
       <Tab.Screen name='AllList' component={AllListScreen} options={{
+        // headerShown: false,
         tabBarLabel: '历史上报',
         title: '历史上报',
         tabBarActiveTintColor: '#000000',
@@ -43,11 +46,11 @@ const TabStack = () => {
 
 export const AppStack = () => {
   return (
-    <Stack.Navigator headerMode='none'>
-      <Stack.Screen name='Tab' component={TabStack} />
-      <Stack.Screen name='CreateStep1' component={CreateStep1Screen} />
-      <Stack.Screen name='CreateStep2' component={CreateStep2Screen} />
-      <Stack.Screen name='Details' component={DetailsScreen} />
+    <Stack.Navigator>
+      <Stack.Screen name='Tab' options={{ title: '智慧病虫害', headerShown: false }} component={TabStack} />
+      <Stack.Screen name='CreateStep1' options={{ title: '天气物候', }} component={CreateStep1Screen} />
+      <Stack.Screen name='CreateStep2' options={{ title: '监测数据采集' }} component={CreateStep2Screen} />
+      <Stack.Screen name='Details' options={{ title: '上报详情' }} component={DetailsScreen} />
     </Stack.Navigator>
   );
 };

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { TableView } from "../components/TableView";
-import { Filter } from '../components'
+import { Button } from 'react-native-ui-lib'
+import { Colors } from '../config'
+import { InlineForm, DateRange, Select, TableView } from '../components'
 import { useDistrict, useBugCategory, useTemplateFixedPointList, useUserTemplateList } from "../hooks/useData";
 
 
@@ -84,48 +85,6 @@ export const MyListScreen = ({ navigation }) => {
     })]
   }, [data, userTemplateList])
 
-  const filterItems = useMemo(() => {
-    return [{
-      field: 'bugId',
-      formType: 'select',
-      placeholder: '请选择虫害',
-      restProps: {
-        options: [defaultOption, ...bugCategoryRange],
-      }
-    }, {
-      field: 'district',
-      formType: 'select',
-      placeholder: '请选择区域',
-      restProps: {
-        options: [{ label: '全部' }, ...districtRange],
-      }
-    }, {
-      field: 'date',
-      formType: 'dateRange',
-      placeholder: '请选择时间',
-      style: {
-        width: '60%',
-        flex: 'auto'
-      }
-    }, {
-      field: 'submit',
-      formType: 'button',
-      style: {
-        width: '40%',
-        flex: 'auto',
-        textAlign: 'right'
-      },
-      restProps: {
-        text: '立即同步',
-        disabled: userTemplateList.length === 0,
-        onClick() {
-          uploadUserTemplate()
-        }
-      }
-    }]
-  }, [userTemplateList, districtRange, bugCategoryRange])
-
-
   const uploadUserTemplate = () => {
     const uploadList = userTemplateList.map(item => ({ ...item, status: checkUserTemplateItem(item) ? '0' : '1' })).filter(item => item.status === '0')
     if (uploadList.length === 0) {
@@ -167,7 +126,12 @@ export const MyListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Filter items={filterItems} onChange={onFilter}></Filter>
+      <InlineForm onChange={onFilter}>
+        <Select placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
+        <Select placeholder='请选择区域' options={[{ label: '全部' }, ...districtRange]} name='district' />
+        <DateRange name='date' width='70%' />
+        <Button width='30%' backgroundColor={Colors.primary} size='small' borderRadius={0} label='上传数据' />
+      </InlineForm>
       <TableView showDot columns={columns} dataSource={makeData} onClick={handleClick}></TableView>
     </View>
   );

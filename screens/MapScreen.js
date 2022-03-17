@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, StyleSheet, StatusBar, Text, NavigationContainer } from "react-native";
-import { Sidebar } from '../components'
+import { Sidebar, AmapView } from '../components'
 import { useMarkerList, useTemplateFixedPoint, useAllTemplateData, useMarkerTemplate, useUserTemplateList } from '../hooks/useData'
 
 
@@ -34,7 +34,9 @@ export const MapScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Sidebar show={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onClose={() => setShowMenu(false)} />
+      <Sidebar show={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onClose={() => setShowMenu(false)}>
+
+      </Sidebar>
 
     </View>
   );

@@ -59,7 +59,6 @@ export const TableView = ({
         ListEmptyComponent={<View />}
         renderItem={(data) => renderItem({
           dataSource: data.item, columns, showDot, onClick() {
-            console.log(data.item, 'dfd')
             onClick(data.item)
           }
         })}
