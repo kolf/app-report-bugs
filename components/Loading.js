@@ -1,21 +1,18 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-
+import { View } from 'react-native-ui-lib'
 import { Colors } from '../config';
-import { View } from './View';
 
-export const Loading = () => {
+export const Loading = (props) => {
   return (
-    <View style={styles.container}>
+    <View style={styles.root} center {...props}>
       <ActivityIndicator size='large' color={Colors.success} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+  root: {
+
   }
 });

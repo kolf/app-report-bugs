@@ -1,12 +1,10 @@
 import * as React from "react";
 import { StyleSheet, ScrollView, } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View, Text, Incubator } from 'react-native-ui-lib'
-import { FormItem, FormList, TableForm, ImagePicker, View as RNView } from "../components";
+import { View, Text } from 'react-native-ui-lib'
+import { FormItem, FormList, TableForm, ImagePicker, View as RNView, Loading, Error } from "../components";
 import { useDetails, usePosition } from "../hooks/useData";
 
 export const DetailsScreen = ({ route }) => {
-  const insets = useSafeAreaInsets();
   const { params } = route
   const { data: templateDetailsData, error } = useDetails(params.id)
   const { data: positionData } = usePosition(params.deviceId)
@@ -49,16 +47,17 @@ export const DetailsScreen = ({ route }) => {
     })
   }, [templateDetailsData])
 
+  console.log(error, loading, positionData, 'loading')
+
   if (loading) {
-    return null
+    return <Loading flex />
   }
 
-  // if (error) {
-  //   return <Error />
-  // }
+  if (error) {
+    return <Error />
+  }
 
   return (
-
     <ScrollView>
       <View paddingV-12 paddingH-16><Text text70>监测数据</Text></View>
       <FormList>
@@ -73,11 +72,11 @@ export const DetailsScreen = ({ route }) => {
           <Text>{templateDetailsData.recordTime}</Text>
         </FormItem>
         <FormItem label='温度'>
-          <Text>{templateDetailsData.temperature}</Text>
+          <Text>{templateDetailsData.temperature || 0}℃</Text>
         </FormItem>
 
         <FormItem label='树种'>
-          <Text>{templateDetailsData.treeName}</Text>
+          <Text>{templateDetailsData.treeName || '未知'}</Text>
         </FormItem>
 
         <FormItem label='物候'>
@@ -101,17 +100,8 @@ export const DetailsScreen = ({ route }) => {
         />
       </View>
       <View paddingV-12 paddingH-16><Text text70>备注</Text></View>
-      <View padding-24 backgroundColor='#fff'>
-        <Incubator.TextField
-          placeholder='请输入'
-          disabled
-          showCharCounter
-          maxLength={200}
-          fieldStyle={{
-            height: 100,
-            alignItems: 'flex-start'
-          }}
-        />
+      <View padding-24 backgroundColor='#fff' height={200}>
+        <Text>{templateDetailsData.remark || '无'}</Text>
       </View>
     </ScrollView>
 

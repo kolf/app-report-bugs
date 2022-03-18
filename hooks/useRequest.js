@@ -3,38 +3,33 @@ import fetch from "unfetch";
 import queryString from "query-string";
 
 const API_ROOT = {
-  "/api/dreamdeck": "https://www.dreamdeck.cn:10443",
-  "/api/bjtzh": "https://zhyl.zwyun.bjtzh.gov.cn",
+  "/api/dreamdeck": "https://test.dreamdeck.cn:10443",
+  "/api/bjtzh": "https://test.dreamdeck.cn",
   "/api/qpic": "https://mapstyle.qpic.cn",
-  "/api/edit":
-    "http://editservice-vcg-com.cb16adeacafeb4b9b988ae5d7e8bf0fc1.cn-beijing.alicontainer.com",
 };
 
 export const getFetcher = async (url, method, data, headers) => {
+  console.log(url, data, method)
   const apiRootKey = (url.match(/(\/api\/\w+)\//) || [])[1];
-  const result = await fetch(url.replace(apiRootKey, API_ROOT[apiRootKey]), {
-    method: method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      ...headers
-    },
-    data,
-  })
-    .then((res) => {
-      return res.json();
+  try {
+    const res = await fetch(url.replace(apiRootKey, API_ROOT[apiRootKey]), {
+      method: method || "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers
+      },
+      data,
     })
-    .then(res => {
-      if (res.code !== 0) {
-        throw res.data
-      }
-      return res.data
-    })
-    .catch((error) => {
-      throw new Error("Error: " + error);
-    });
-
-  // console.log(result, data, url)
-  return result;
+    const resData = await res.json()
+    // console.log(url, resData, 'API--')
+    if (resData.code !== 0) {
+      throw new Error(resData.msg)
+    }
+    return Promise.resolve(resData.data)
+  } catch (error) {
+    // console.error(error.message, 'error')
+    return Promise.reject(error)
+  }
 };
 
 export const useRequest = (name, args, options) => {
@@ -43,11 +38,13 @@ export const useRequest = (name, args, options) => {
       ? `${name}?${queryString.stringify(args)}`
       : name;
 
-  const { data, error, mutate } = useSWR(url, async () =>
+  const { data, error, mutate } = useSWR(url, async (url) =>
     getFetcher(url, options.method, options.data)
   );
 
   const result = options.formatData ? options.formatData(data) : data;
+
+  // console.log(error, 'error')
 
   return {
     data: result,

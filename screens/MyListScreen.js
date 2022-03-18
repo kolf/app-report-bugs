@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import * as React from "react";
+import { View, StyleSheet, Text, Alert } from "react-native";
 import { Button } from 'react-native-ui-lib'
 import { Colors } from '../config'
-import { InlineForm, DateRange, Select, TableView } from '../components'
-import { useDistrict, useBugCategory, useTemplateFixedPointList, useUserTemplateList } from "../hooks/useData";
-
+import { InlineForm, DateRange, TableView, Picker } from '../components'
+import { useDistrict, useBugCategory, useInfiniteTemplate, useUserTemplateList } from "../hooks/useData";
+import { makeTableCellData } from "../lib/makeData";
 
 const columns = [{
   title: '序号',
@@ -28,7 +28,7 @@ const defaultOption = {
 
 
 const checkUserTemplateItem = (data) => {
-  return data._treeId && data._preId && (data._fileList || []).length > 0
+  return data.treeId && data.preId && (data._fileList || []).length > 0
 }
 
 const makeQuery = (values) => {
@@ -52,21 +52,20 @@ const makeQuery = (values) => {
 
 
 export const MyListScreen = ({ navigation }) => {
-  const [query, setQuery] = useState({
-    current: 1,
-    size: 15,
+  const [query, setQuery] = React.useState({
     // district: '',
     // bugId: '',
     // startMonitorTime: '',
     // endMonitorTime: ''
   })
 
-  const { data, error, loading } = useTemplateFixedPointList({ query, userId: 1640764667575, });
+  // const { data, error, loading } = useTemplateFixedPointList(makeQuery(query));
+  const { data, error, isLoading, setSize, size, isValidating, isRefreshing, onRefresh } = useInfiniteTemplate(makeQuery(query))
   const { data: districtRange = [] } = useDistrict()
   const { data: bugCategoryRange = [] } = useBugCategory()
   const { data: userTemplateList = [], remove, clearAll } = useUserTemplateList();
 
-  const makeData = useMemo(() => {
+  const makeData = React.useMemo(() => {
     if (!data || !userTemplateList) {
       return []
     }
@@ -85,21 +84,25 @@ export const MyListScreen = ({ navigation }) => {
     })]
   }, [data, userTemplateList])
 
-  const uploadUserTemplate = () => {
+  const uploadUserTemplate = async () => {
     const uploadList = userTemplateList.map(item => ({ ...item, status: checkUserTemplateItem(item) ? '0' : '1' })).filter(item => item.status === '0')
     if (uploadList.length === 0) {
       return
     }
 
-    uploadList.forEach(item => {
-      remove({
-        ...item,
-        templateCellDataMap: makeTableCellData(item._tableDataIndexMap, item._tableData, item._tableDataSize),   // [{index:1, cell-3:1, cell-1:3}]
-        "monitorAvg": 5,
-        "monitorSum": 15,
-        "phenology": 1,
-      })
-    })
+    try {
+      const res = await Promise.all(uploadList.forEach(item => {
+        return remove({
+          ...item,
+          templateCellDataMap: makeTableCellData(item._tableDataIndexMap, item._tableData, item._tableDataSize),   // [{index:1, cell-3:1, 
+          "monitorAvg": 5,
+          "monitorSum": 15,
+          "phenology": 1,
+        })
+      }))
+    } catch (error) {
+      Alert.alert(`同步出错了~`)
+    }
   }
 
   const handleClick = ({ id, deviceId, status, templateId }) => {
@@ -117,28 +120,34 @@ export const MyListScreen = ({ navigation }) => {
   }
 
   const onFilter = values => {
-    const newQuery = makeQuery(values)
     setQuery({
       ...query,
-      ...newQuery
+      ...values
     })
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.root}>
       <InlineForm onChange={onFilter}>
-        <Select placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
-        <Select placeholder='请选择区域' options={[{ label: '全部' }, ...districtRange]} name='district' />
+        <Picker placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
+        <Picker placeholder='请选择区域' options={[defaultOption, ...districtRange]} name='district' />
         <DateRange name='date' width='70%' />
-        <Button width='30%' backgroundColor={Colors.primary} size='small' borderRadius={0} label='上传数据' />
+        <Button width='30%' backgroundColor={Colors.primary} size='small' borderRadius={0} label='上传数据' onPress={uploadUserTemplate} />
+        <Button width='100%' size='small' borderRadius={0} label='删除全部数据' onPress={clearAll} />
       </InlineForm>
-      <TableView showDot columns={columns} dataSource={makeData} onClick={handleClick}></TableView>
+      <TableView rowKey="key" pageProps={
+        {
+          isRefreshing, onRefresh,
+          size,
+          setSize
+        }
+      } loading={isLoading} showDot columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
   },
 });

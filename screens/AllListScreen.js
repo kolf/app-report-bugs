@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from "react";
+import * as React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { Filter, TableView, InlineForm, DateRange, Select } from '../components'
-import { useDistrict, useBugCategory, useTemplateFixedPointList } from "../hooks/useData";
+import { Button } from 'react-native-ui-lib'
+import { Colors } from '../config'
+import { InlineForm, DateRange, Select, TableView, Picker } from '../components'
+import { useDistrict, useBugCategory, useTemplateFixedPointList, useInfiniteTemplate } from "../hooks/useData";
+
 
 const columns = [{
   title: '序号',
@@ -44,26 +47,26 @@ const makeQuery = (values) => {
 
 
 export const AllListScreen = ({ navigation }) => {
-  const [query, setQuery] = useState({
-    current: 1,
-    size: 15,
+  const [query, setQuery] = React.useState({
     // district: '',
     // bugId: '',
     // startMonitorTime: '',
     // endMonitorTime: ''
   })
 
-  const { data, error, loading } = useTemplateFixedPointList(query);
+  // const { data, error, loading } = useTemplateFixedPointList(makeQuery(query));
+  const { data, error, isLoading, setSize, size, isValidating, isRefreshing, onRefresh } = useInfiniteTemplate(makeQuery(query))
   const { data: districtRange = [] } = useDistrict()
   const { data: bugCategoryRange = [] } = useBugCategory()
 
-  const makeData = useMemo(() => {
+  const makeData = React.useMemo(() => {
     if (!data) {
       return []
     }
     return data.map((item, index) => {
       return {
         ...item,
+        key: item.id + '-' + item.deviceId + '-' + item.templateId + '-' + index,
         index: index + 1
       }
     })
@@ -77,21 +80,26 @@ export const AllListScreen = ({ navigation }) => {
   }
 
   const onFilter = values => {
-    const newQuery = makeQuery(values)
     setQuery({
       ...query,
-      ...newQuery
+      ...values
     })
   }
 
   return (
     <View style={styles.root}>
       <InlineForm onChange={onFilter}>
-        <Select placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
-        <Select placeholder='请选择区域' options={[{ label: '全部' }, ...districtRange]} name='district' />
+        <Picker placeholder='请选择虫害' options={[defaultOption, ...bugCategoryRange]} name='bugId' />
+        <Picker placeholder='请选择区域' options={[defaultOption, ...districtRange]} name='district' />
         <DateRange name='date' width='70%' />
       </InlineForm>
-      <TableView columns={columns} dataSource={makeData} onClick={handleClick} />
+      <TableView rowKey="key" pageProps={
+        {
+          isRefreshing, onRefresh,
+          size,
+          setSize
+        }
+      } loading={isLoading} showDot columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };

@@ -17,7 +17,7 @@ export const ImagePicker = ({ files, showAddBtn }) => {
     </View>)}
     {showAddBtn && <View padding-6 height={imageWidth} width={imageWidth}>
       <View style={styles.add} flex center>
-        <Image aspectRatio={1} style={{ width: 60, height: 60 }} assetName="add" assetGroup="icons" />
+        <Image style={{ width: 60, height: 60 }} assetName="add" assetGroup="icons" />
       </View>
     </View>}
   </View>

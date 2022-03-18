@@ -1,8 +1,9 @@
 import * as React from "react";
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, RefreshControl } from "react-native";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
 import { View, Text, ListItem, } from "react-native-ui-lib";
+import { useUserTemplateList, useTemplateFixedPoint } from '../hooks/useData'
 import { Colors } from "../config";
 
 const renderItem = ({ item, onClick }) => {
@@ -18,6 +19,10 @@ export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange })
   const navigation = useNavigation()
   const ref = React.useRef(null)
   const openRef = React.useRef(propsOpen)
+  const { data: userTemplateList } = useUserTemplateList()
+  const { data: templateFixedPointList, error, loading, refresh } = useTemplateFixedPoint();
+
+  // console.log(templateFixedPointList, error, 'error')
 
   React.useEffect(() => {
     // console.log(propsOpen)
@@ -27,6 +32,23 @@ export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange })
     }
 
   }, [propsOpen, ref, openRef])
+
+  const mekeTemplateFixedPointList = React.useCallback((data) => {
+    if (!data) {
+      return []
+    }
+    return data.map(item => {
+      const id = item.deviceId + '-' + item.templateId
+      if ((userTemplateList || []).find(u => u.id === id)) {
+        return {
+          ...item,
+          id,
+          isWarn: '2'
+        }
+      }
+      return { ...item, id }
+    })
+  }, [userTemplateList])
 
 
   const handleClick = index => {
@@ -45,18 +67,18 @@ export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange })
 
   const renderDrawer = () => {
     return (
-      <View style={styles.root}>
-        <FlatList
-          data={dataSource}
-
-          renderItem={({ item, index }) => renderItem({
-            item, onClick() {
-              handleClick(index)
-            }
-          })}
-          keyExtractor={item => item.id}
-        />
-      </View>
+      <FlatList
+        ListEmptyComponent={<View height={400} center><Text text70>暂无数据</Text></View>}
+        refreshing={loading}
+        onRefresh={refresh}
+        data={mekeTemplateFixedPointList(templateFixedPointList)}
+        renderItem={({ item, index }) => renderItem({
+          item, onClick() {
+            handleClick(index)
+          }
+        })}
+        keyExtractor={item => item.id}
+      />
     );
   };
 

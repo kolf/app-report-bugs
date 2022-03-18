@@ -5,7 +5,7 @@ import { Select } from './Select'
 import { DateRange } from './DateRange';
 import { Colors } from '../config'
 
-export const InlineForm = ({ children }) => {
+export const InlineForm = ({ children, onChange }) => {
   const [values, setValues] = React.useState({})
 
   const handleChange = (field, value) => {
@@ -18,12 +18,12 @@ export const InlineForm = ({ children }) => {
   }
   // const Nodes = 
   return <View style={styles.root}>{React.Children.map(children, child => {
-    return <View style={{ ...styles.item, width: child.props.width || '50%' }}>{React.cloneElement({
-      ...child, onChange: (value) => {
+    return <View style={{ ...styles.item, width: child.props.width || '50%' }}>{React.cloneElement(child, {
+      onChange: (...args) => {
         if (!child.props.name) {
           return null
         }
-        handleChange(child.props.name, value)
+        handleChange(child.props.name, ...args)
       }
     })}</View>
   })}</View>

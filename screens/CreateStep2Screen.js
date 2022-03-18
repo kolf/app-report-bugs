@@ -1,8 +1,8 @@
 import * as React from "react";
-import { StyleSheet, ScrollView, FlatList } from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { StyleSheet, ScrollView, Alert } from "react-native";
 import { View, Text, Button, Incubator } from 'react-native-ui-lib'
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View as RNView, Steps, FormList, FormItem, TableForm, ImagePicker } from '../components'
+import { View as RNView, Steps, FormList, Loading, TableForm, ImagePicker } from '../components'
 import { useTemplate, useUserTemplateList } from '../hooks/useData';
 import { makeTableCellData } from '../lib/makeData'
 import { Colors } from '../config'
@@ -30,9 +30,11 @@ export const CreateStep2Screen = ({ route, navigation }) => {
 
   const [formData, setFormData] = React.useState({
     remark: currentUserTemplate?.remark,
-    fileList: currentUserTemplate?._fileList || [],
+    fileList: currentUserTemplate?._fileList || [`https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg`, `https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg`],
     tableData: currentUserTemplate?._tableData
   })
+
+  console.log(currentUserTemplate, 'currentUserTemplate')
 
   const loading = !templateData;
 
@@ -43,10 +45,10 @@ export const CreateStep2Screen = ({ route, navigation }) => {
     })
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const _tableDataIndexMap = getTableDataIndexMap(columns)
     try {
-      removeUserTemplate({
+      await removeUserTemplate({
         ...currentUserTemplate,
         _tableDataSize: memoData?.length,
         templateCellDataMap: makeTableCellData(_tableDataIndexMap, formData?.tableData, memoData?.length),   // [{index:1, cell-3:1, cell-1:3}]
@@ -58,17 +60,17 @@ export const CreateStep2Screen = ({ route, navigation }) => {
 
       // Taro.showToast({ title: '上报成功～', icon: 'success' })
     } catch (error) {
+      Alert.alert(`提交失败`, error.message)
       updateUserTemplate({
         id: _id,
         remark: formData?.remark,
         _fileList: formData?.fileList,
-        _tableDataSize: data?.length,
+        _tableDataSize: memoData?.length,
         _tableData: formData?.tableData,
         _tableDataIndexMap
       })
-      // Taro.showToast({ title: '上报失败～', icon: 'error' })
     }
-    navigation.goBack(2)
+    navigation.navigate('Home')
   }
 
   const handlePrev = () => {
@@ -115,15 +117,17 @@ export const CreateStep2Screen = ({ route, navigation }) => {
       title: t.cellName
     }))]
   }, [templateData])
+
+  const checkNext = React.useMemo(() => {
+    return formData.fileList.length === 0
+  }, [formData.fileList])
   // console.log(userTemplateData, 'templateData')
   if (loading) {
-    return null
+    return <Loading flex />
   }
 
-  // console.log(treeRange, templateData.treeSeedList, 'list')
-
   return (
-    <ScrollView>
+    <KeyboardAwareScrollView enableOnAndroid={true}>
       <View paddingV-20><Steps
         items={stepList}
         current={1}
@@ -134,16 +138,18 @@ export const CreateStep2Screen = ({ route, navigation }) => {
       <View backgroundColor='#fff' paddingV-12>
         <ImagePicker
           showAddBtn={true}
-          files={[1, 2]?.map(item => ({ url: `https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg` }))}
+          files={formData.fileList?.map(item => ({ url: item }))}
         />
       </View>
       <View paddingV-12 paddingH-16><Text text70>备注</Text></View>
       <View padding-24 backgroundColor='#fff'>
         <Incubator.TextField
+          value={formData.remark}
           placeholder='请输入'
           disabled
           showCharCounter
           maxLength={200}
+          onChangeText={value => handleChange('remark', value)}
           fieldStyle={{
             height: 100,
             alignItems: 'flex-start'
@@ -156,10 +162,10 @@ export const CreateStep2Screen = ({ route, navigation }) => {
           <Button label='上一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.white} color={Colors.black} outlineColor={Colors.primary} onPress={handlePrev}></Button>
         </View>
         <View paddingV-8>
-          <Button label='提交' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
+          <Button label='提交' disabled={checkNext} borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 

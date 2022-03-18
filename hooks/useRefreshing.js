@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
 
-export default function useRefreshing(loading, refresh) {
-  const [refreshing, setRefreshing] = useState(false);
+export const useRefresh = (loading, onRefresh) => {
+  const timer = useRef(null)
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (loading === false && refreshing === true) {
       setRefreshing(false);
+    }
+    return () => {
+      clearTimeout(timer.current);
+      timer.current = null;
     }
   }, [loading]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    let timer = setTimeout(() => {
-      clearTimeout(timer);
-      timer = null;
-      refresh();
+    timer.current = setTimeout(() => {
+      onRefresh();
     }, 300);
   };
 

@@ -4,7 +4,7 @@ export default {
   expo: {
     name: '智慧病虫害',
     slug: 'buglist',
-    privacy: 'public',
+    privacy: 'unlisted',
     platforms: ['ios', 'android'],
     version: '0.15.0',
     orientation: 'portrait',
@@ -22,7 +22,8 @@ export default {
       supportsTablet: true
     },
     "android": {
-      "package": "com.picasa.buglist"
+      "package": "com.picasa.buglist",
+      "versionCode": 1
     }
   }
 };

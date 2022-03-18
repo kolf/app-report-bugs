@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { View, Text, Button } from 'react-native-ui-lib'
-import { View as RNView, Steps, FormList, FormItem, Select, Loading } from '../components'
+import { View as RNView, Steps, FormList, FormItem, Select, Loading, Error } from '../components'
 import { useWeather, useTemplate, usePosition, useUserTemplateList } from '../hooks/useData';
 import { useLocalDate } from '../hooks/useDate';
 import { Colors } from '../config'
@@ -15,32 +15,32 @@ const stepList = [{
 
 const treeTypeList = [
   {
-    id: 1,
-    name: "萌芽期"
+    value: 1,
+    label: "萌芽期"
   },
   {
-    id: 2,
-    name: "展叶期"
+    value: 2,
+    label: "展叶期"
   },
   {
-    id: 3,
-    name: "初花期"
+    value: 3,
+    label: "初花期"
   },
   {
-    id: 4,
-    name: "盛花期"
+    value: 4,
+    label: "盛花期"
   },
   {
-    id: 5,
-    name: "末花期"
+    value: 5,
+    label: "末花期"
   },
   {
-    id: 6,
-    name: "果期"
+    value: 6,
+    label: "果期"
   },
   {
-    id: 7,
-    name: "落叶期"
+    value: 7,
+    label: "落叶期"
   }
 ]
 
@@ -50,16 +50,17 @@ export const CreateStep1Screen = ({ route, navigation }) => {
   const { get: getUserTemplate, update: updateUserTemplate, add: addUserTemplate } = useUserTemplateList()
   const currentUserTemplate = getUserTemplate(_id)
   const { data: weatherData } = useWeather()
-  const { data: positionData } = usePosition(params.deviceId)
-  const { data: templateData } = useTemplate(params.templateId)
+  const { data: positionData, error: positionError } = usePosition(params.deviceId)
+  const { data: templateData, error: templateError } = useTemplate(params.templateId)
   const { date: recordTime } = useLocalDate()
   // const { data: currentUserTemplate, update: updateUserTemplate } = useUserTemplate(_id)
   const [formData, setFormData] = React.useState({
-    treeId: currentUserTemplate?._treeId,
-    preId: currentUserTemplate?._preId
+    treeId: currentUserTemplate?.treeId,
+    preId: currentUserTemplate?.preId
   })
 
-  const loading = !weatherData || !templateData || !positionData;
+  const loading = !weatherData && !templateData && !positionData;
+  const error = positionError || templateError
 
   const handleChange = (field, value) => {
     setFormData({
@@ -72,17 +73,17 @@ export const CreateStep1Screen = ({ route, navigation }) => {
     const data = {
       id: _id,
       userId: '1640764667575',
-      _treeId: formData.treeId,
-      _preId: formData.preId,
-      name: positionData.name,
+      treeId: formData.treeId,
+      preId: formData.preId,
+      name: positionData?.name,
       recordTime: recordTime,
       bugName: templateData?.bugClassify?.bugName,
-      bugId: templateData.bugId,
-      itemId: templateData.itemId,
+      bugId: templateData?.bugId,
+      itemId: templateData?.itemId,
       deviceId: params.deviceId,
       templateId: params.templateId,
-      weather: weatherData.text,
-      temperature: weatherData.temp
+      weather: weatherData?.text,
+      temperature: weatherData?.temp
     }
     if (currentUserTemplate) {
       updateUserTemplate(data)
@@ -92,13 +93,24 @@ export const CreateStep1Screen = ({ route, navigation }) => {
     navigation.navigate('CreateStep2', params)
   }
 
+  const checkNext = React.useMemo(() => {
+    return !formData.preId || !formData.treeId
+  }, [formData.preId, formData.treeId])
+
+  const treeSeedList = React.useMemo(() => {
+    return templateData?.treeSeedList.map(item => ({
+      value: item.id,
+      label: item.treeName
+    })) || []
+  }, [templateData])
 
   if (loading) {
-    return <Loading />
+    return <Loading flex />
   }
 
-
-  // console.log(treeRange, templateData.treeSeedList, 'list')
+  if (error) {
+    return <Error isPage />
+  }
 
   return (
     <ScrollView>
@@ -107,16 +119,16 @@ export const CreateStep1Screen = ({ route, navigation }) => {
         current={0}
       /></View>
       <FormList>
-        <FormItem label='测报模板'><Text text16>{templateData.templateName}</Text></FormItem>
-        <FormItem label='树种' required><Select title='请选择树种' unstyle placeholder='请选择树种' rangeKey='treeName' options={templateData.treeSeedList || []} onChange={value => handleChange('treeId', value)} /></FormItem>
-        <FormItem label='物候' required><Select title='请选择物候' unstyle placeholder='请选择物候' rangeKey='name' options={treeTypeList} onChange={value => handleChange('preId', value)} /></FormItem>
-        <FormItem label='天气'><Text text16>{weatherData.text}</Text></FormItem>
-        <FormItem label='温度'><Text text16>{weatherData.temp || 0}℃</Text></FormItem>
+        <FormItem label='测报模板'><Text text16>{templateData?.templateName}</Text></FormItem>
+        <FormItem label='树种' required><Select title='请选择树种' defaultValue={formData.treeId} unstyle placeholder='请选择树种' rangeKey='treeName' options={treeSeedList} onChange={value => handleChange('treeId', value)} /></FormItem>
+        <FormItem label='物候' required><Select title='请选择物候' defaultValue={formData.preId} unstyle placeholder='请选择物候' options={treeTypeList} onChange={value => handleChange('preId', value)} /></FormItem>
+        <FormItem label='天气'><Text text16>{weatherData?.text}</Text></FormItem>
+        <FormItem label='温度'><Text text16>{weatherData?.temp || 0}℃</Text></FormItem>
         <FormItem label='监测时间'><Text text16>{recordTime}</Text></FormItem>
         <FormItem label='测报人'><Text text16>高昱</Text></FormItem>
       </FormList>
       <View paddingV-40 paddingH-16>
-        <Button label='下一步' borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
+        <Button label='下一步' borderRadius={4} style={{ height: 48 }} disabled={checkNext} backgroundColor={Colors.primary} onPress={handleNext}></Button>
       </View>
     </ScrollView>
   );

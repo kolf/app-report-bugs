@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     height: 30,
   },
   date: {
-    // backgroundColor: '#f00',
     width: '45%',
     textAlign: 'center',
     height: 30,

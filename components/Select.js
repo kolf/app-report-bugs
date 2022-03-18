@@ -3,54 +3,39 @@ import { StyleSheet, Pressable } from "react-native";
 import { View, Text, ActionSheet, Picker } from "react-native-ui-lib";
 import { Colors } from '../config'
 
-export const Select = ({ title, value: propsValue, unstyle, onChange, options = [], placeholder, rangeKey = 'label' }) => {
+export const Select = ({ title, defaultValue, unstyle, onChange, options = [], placeholder }) => {
   const [visible, setVisible] = React.useState(false);
-  const [value, setValue] = React.useState(-1)
-
-  React.useEffect(() => {
-    if (propsValue && propsValue !== value) {
-      setValue(propsValue)
-    }
-  }, [propsValue])
+  const [value, setValue] = React.useState(defaultValue)
 
   const memoOptions = React.useMemo(() => {
-    return [...options.map((item, index) => ({
-      label: item[rangeKey],
+    return [...options.map((item) => ({
+      label: item.label,
       onPress() {
-        setValue(index)
-        onChange && onChange(index);
+        setValue(item.value)
+        onChange && onChange(item.value, item);
       },
     })), { label: "取消" }]
   })
 
 
-  const valueText = React.useMemo(() => {
-    if (value === -1) {
-      return placeholder
-    }
-    return options[value][rangeKey]
+  const labelName = React.useMemo(() => {
+    return options.find(option => option.value === value)?.label || placeholder
   }, [value, options])
-
-  // console.log(options, rangeKey, value, 'value')
-  if (!options) {
-    return null
-  }
-
 
   return (
     <>
       <Pressable style={unstyle ? null : styles.root} onPress={(e) => setVisible(true)}>
         <Text>
-          {valueText}
+          {labelName}
         </Text>
       </Pressable>
       <ActionSheet
         useSafeArea
-        showCancelButton
-        // useNativeIOS
+        // showCancelButton
+        useNativeIOS
         title={title}
-        cancelButtonIndex={options.length}
-        destructiveButtonIndex={value}
+        // cancelButtonIndex={options.length}
+        // destructiveButtonIndex={value}
         options={memoOptions}
         visible={visible}
         onDismiss={(e) => setVisible(false)}

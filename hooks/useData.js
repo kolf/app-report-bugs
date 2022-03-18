@@ -1,7 +1,41 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as React from "react";
 import useSWR, { useSWRConfig } from "swr";
+import useSWRInfinite from 'swr/infinite'
+import queryString from "query-string";
 import { getFetcher, useRequest } from "./useRequest";
+
+
+
+export const useInfiniteTemplate = (params) => {
+  console.log(params, 'params')
+  const PAGE_SIZE = 16;
+  const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite((index) => `/api/bjtzh/pest/fixed/point/pageFixedPointRecord?itemId=1&size=${PAGE_SIZE}&current=${index + 1}&${queryString.stringify(params)}`, async (url) => {
+    const res = await getFetcher(url);
+    return res.records
+  });
+
+  const issues = data ? [].concat(...data) : [];
+  const isLoading = !data && !error;
+  const isLoadingMore =
+    isLoading ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+  const isEmpty = data?.[0]?.length === 0;
+  const isReachingEnd =
+    isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
+
+
+  return {
+    data: issues,
+    onRefresh: mutate,
+    isLoading,
+    isValidating,
+    isRefreshing,
+    size,
+    setSize
+  }
+}
 
 export const useAllTemplateData = () => {
   const { mutate } = useSWRConfig();
@@ -122,16 +156,20 @@ export const useUserTemplateList = () => {
 
   const remove = React.useCallback(
     async (data) => {
-      const res = await getFetcher(
-        `/api/bjtzh/pest/fixed/point/saveFixedPointRecord`,
-        "POST",
-        _makeData(data)
-      );
+      try {
+        const res = await getFetcher(
+          `/api/bjtzh/pest/fixed/point/saveFixedPointRecord`,
+          "POST",
+          _makeData(data)
+        );
+      } catch (error) {
+        return Promise.reject(error)
+      }
       const nextList = list.filter((item) => item.id !== data.id);
       AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
       mutate(
-        `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=10001`
+        `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
       );
     },
     [list]
@@ -174,7 +212,7 @@ export const useUserTemplateList = () => {
 export const useMarkerList = () => {
   return useRequest(
     `/api/bjtzh/pest/point/position/listPointPositionInfo`,
-    { itemId: 10001, typeId: 8202 },
+    { itemId: 1, typeId: 8202 },
     {}
   );
 };
@@ -206,7 +244,7 @@ export const usePosition = (id) => {
 export const useTemplateFixedPoint = () => {
   return useRequest(
     `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo`,
-    { itemId: 10001 },
+    { itemId: 1 },
     {}
   );
 };
@@ -214,7 +252,7 @@ export const useTemplateFixedPoint = () => {
 export const useTemplateFixedPointList = (query) => {
   return useRequest(
     `/api/bjtzh/pest/fixed/point/pageFixedPointRecord`,
-    { itemId: 10001, ...query },
+    { itemId: 1, ...query },
     {
       formatData(res) {
         return res?.records;
@@ -241,11 +279,11 @@ export const useWeather = () => {
 
 export const useDistrict = () => {
   return useRequest(
-    `/api/bjtzh/pest/point/position/listDistrict/10001/8202`,
+    `/api/bjtzh/pest/point/position/listDistrict/1/8202`,
     null,
     {
       formatData(res) {
-        return res?.map(item => ({ label: item }))
+        return res?.map(item => ({ label: item, value: item }))
       }
     }
   );
@@ -254,7 +292,7 @@ export const useDistrict = () => {
 export const useBugCategory = () => {
   return useRequest(
     `/api/bjtzh/pest/bug/classify/getBugClassify`,
-    { itemId: 10001, levelList: 4 },
+    { itemId: 1, levelList: 4 },
     {
       formatData(res) {
         return res?.map(item => ({ value: item.id * 1, label: item.bugName }))

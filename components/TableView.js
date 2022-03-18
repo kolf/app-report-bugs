@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { FlatList, StyleSheet, Pressable } from "react-native";
+import { FlatList, VirtualizedList, StyleSheet, Pressable, } from "react-native";
 import { Text, View } from "react-native-ui-lib";
+import { Empty } from "./Empty";
+import { Loading } from './Loading'
 
 const colors = {
   0: '#cccccc',
@@ -35,12 +37,17 @@ const renderItem = ({ dataSource, showDot, columns, onClick }) => {
 export const TableView = ({
   columns = [],
   dataSource = [],
-  onRefresh,
-  refreshing,
+  loading,//TODO
   showDot,
   onClick,
+  pageProps,
   rowKey = "id",
 }) => {
+
+  const getItem = React.useCallback((data, index) => {
+    return data[index]
+  }, [dataSource])
+
   return (
     <View style={styles.container}>
       <View row center style={styles.header}>
@@ -55,7 +62,7 @@ export const TableView = ({
           </View>
         ))}
       </View>
-      <FlatList
+      {loading ? <Loading height={300} /> : (dataSource.length > 0 ? <VirtualizedList
         ListEmptyComponent={<View />}
         renderItem={(data) => renderItem({
           dataSource: data.item, columns, showDot, onClick() {
@@ -64,12 +71,15 @@ export const TableView = ({
         })}
         keyExtractor={(item) => item[rowKey]}
         data={dataSource}
+        getItemCount={() => dataSource.length}
+        getItem={getItem}
         style={styles.body}
         onEndReachedThreshold={1} //距离底部半屏触发事件
         initialNumToRender={4}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-      />
+        onEndReached={() => pageProps.setSize(pageProps.size + 1)}
+        refreshing={pageProps.isRefreshing}
+        onRefresh={pageProps.onRefresh}
+      /> : <Empty height={300} />)}
     </View>
   );
 }

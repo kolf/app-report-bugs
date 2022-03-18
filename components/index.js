@@ -16,7 +16,9 @@ import { FormErrorMessage } from "./FormErrorMessage";
 import { Loading } from "./Loading";
 import { MapPanel } from './MapPanel'
 import { ImagePicker } from './ImagePicker'
-import AmapView from "./AmapView";
+import { Picker } from "./Picker";
+import { Error } from "./Error";
+import { Empty } from "./Empty";
 
 export {
   View,
@@ -34,5 +36,5 @@ export {
   FormList,
   FormItem,
   DateRange,
-  CoverItem, CoverList, MapPanel, AmapView, ImagePicker, TableView
+  CoverItem, CoverList, MapPanel, Picker, ImagePicker, TableView, Empty, Error
 };
