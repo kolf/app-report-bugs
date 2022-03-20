@@ -1,7 +1,7 @@
 import * as React from "react";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet, ScrollView, Alert } from "react-native";
-import { View, Text, Button, Incubator } from 'react-native-ui-lib'
+import { View, Text, Button, Incubator, Toast } from 'react-native-ui-lib'
 import { View as RNView, Steps, FormList, Loading, TableForm, ImagePicker } from '../components'
 import { useTemplate, useUserTemplateList } from '../hooks/useData';
 import { makeTableCellData } from '../lib/makeData'
@@ -24,17 +24,21 @@ const getTableDataIndexMap = (columns) => {
 export const CreateStep2Screen = ({ route, navigation }) => {
   const { params } = route
   const _id = params.deviceId + '-' + params.templateId
+  const [messages, setMessages] = React.useState({
+    visible: false,
+    message: ''
+  })
   const { get: getUserTemplate, update: updateUserTemplate, remove: removeUserTemplate } = useUserTemplateList()
   const currentUserTemplate = getUserTemplate(_id)
   const { data: templateData } = useTemplate(params.templateId)
 
   const [formData, setFormData] = React.useState({
     remark: currentUserTemplate?.remark,
-    fileList: currentUserTemplate?._fileList || [`https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg`, `https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg`],
+    fileList: currentUserTemplate?._fileList || [],
     tableData: currentUserTemplate?._tableData
   })
 
-  console.log(currentUserTemplate, 'currentUserTemplate')
+  // console.log(currentUserTemplate, 'currentUserTemplate')
 
   const loading = !templateData;
 
@@ -51,13 +55,23 @@ export const CreateStep2Screen = ({ route, navigation }) => {
       await removeUserTemplate({
         ...currentUserTemplate,
         _tableDataSize: memoData?.length,
+        _fileList: formData?.fileList,
         templateCellDataMap: makeTableCellData(_tableDataIndexMap, formData?.tableData, memoData?.length),   // [{index:1, cell-3:1, cell-1:3}]
+        remark: formData?.remark,
         "monitorAvg": 5,
         "monitorSum": 15,
         "phenology": 1,
-        remark: formData?.remark,
       })
 
+      setMessages({
+        visible: true,
+        message: `提交成功！`
+      })
+      const timer = setTimeout(() => {
+        setMessages({ visible: false, message: '' })
+        clearTimeout(timer)
+        navigation.navigate('Home')
+      }, 2000)
       // Taro.showToast({ title: '上报成功～', icon: 'success' })
     } catch (error) {
       Alert.alert(`提交失败`, error.message)
@@ -69,8 +83,8 @@ export const CreateStep2Screen = ({ route, navigation }) => {
         _tableData: formData?.tableData,
         _tableDataIndexMap
       })
+      navigation.navigate('Home')
     }
-    navigation.navigate('Home')
   }
 
   const handlePrev = () => {
@@ -132,13 +146,14 @@ export const CreateStep2Screen = ({ route, navigation }) => {
         items={stepList}
         current={1}
       /></View>
-      <TableForm columns={columns} dataSource={memoData} rowKey='index' onChange={handleChange.bind(null, 'tableData')} />
+      <TableForm columns={columns} dataSource={memoData} rowKey='index' onChange={value => handleChange('tableData', value)} />
 
       <View paddingV-12 paddingH-16 row><Text text70>上传图片</Text><Text marginT-4 color={Colors.error}>*</Text></View>
       <View backgroundColor='#fff' paddingV-12>
         <ImagePicker
           showAddBtn={true}
-          files={formData.fileList?.map(item => ({ url: item }))}
+          files={formData.fileList}
+          onChange={value => handleChange('fileList', value)}
         />
       </View>
       <View paddingV-12 paddingH-16><Text text70>备注</Text></View>
@@ -165,7 +180,12 @@ export const CreateStep2Screen = ({ route, navigation }) => {
           <Button label='提交' disabled={checkNext} borderRadius={4} style={{ height: 48 }} backgroundColor={Colors.primary} onPress={handleNext}></Button>
         </View>
       </View>
-    </KeyboardAwareScrollView>
+      <Toast
+        position={'top'}
+        autoDismiss={2000}
+        {...messages}
+      />
+    </KeyboardAwareScrollView >
   );
 };
 

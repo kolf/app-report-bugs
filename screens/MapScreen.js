@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { StyleSheet, StatusBar, Text, Pressable } from "react-native";
 // import { MapView, MapType, AMapSdk } from "react-native-amap3d";
-import { View } from 'react-native-ui-lib'
-import { Sidebar, Icon } from '../components'
+import { View, LoaderScreen } from 'react-native-ui-lib'
+import { Sidebar, Icon, Loading } from '../components'
+import { Colors } from '../config'
 import { useMarkerList, useTemplateFixedPoint, useAllTemplateData, useMarkerTemplate, useUserTemplateList } from '../hooks/useData'
 
 // AMapSdk.init(
@@ -12,18 +13,37 @@ import { useMarkerList, useTemplateFixedPoint, useAllTemplateData, useMarkerTemp
 //   })
 // );
 
-const FloatButton = ({ icon, onClick }) => {
-  return <Pressable onPress={onClick}><View borderRadius={4} backgroundColor='#fff' width={40} height={40} center><Icon name={icon} size={24} /></View></Pressable>
+const FloatButton = ({ icon, style, onClick }) => {
+  return <Pressable onPress={onClick} style={style}><View borderRadius={4} backgroundColor='#fff' width={40} height={40} center><Icon name={icon} size={24} /></View></Pressable>
 }
 
 export const MapScreen = () => {
   const [showMenu, setShowMenu] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
   const { data: markerList } = useMarkerList()
   const { data: userTemplateList } = useUserTemplateList()
   const { run: getMarkerTemplate } = useMarkerTemplate()
   const { data: templateFixedPointList } = useTemplateFixedPoint()
-  const { run, loading: allTemplateDataLoading } = useAllTemplateData()
+  const { run } = useAllTemplateData()
   // const { data: markerList } = useMarkerList();
+
+  console.log(loading, 'downloadLoading')
+
+  React.useEffect(() => {
+
+  }, [])
+
+  const downloadTemplate = async () => {
+    setLoading(true)
+    try {
+      const res = await run(templateFixedPointList)
+      console.log(res, templateFixedPointList, 'res')
+    } catch (error) {
+      console.error(error, 'error')
+    }
+    setLoading(false)
+
+  }
 
   // console.log(markerList, 'list')
   const mekeTemplateFixedPointList = React.useCallback((data) => {
@@ -43,6 +63,8 @@ export const MapScreen = () => {
     })
   }, [userTemplateList])
 
+  // console.log(allTemplateDataLoading, 'allTemplateDataLoading')
+
 
   // return <MapView
   //   mapType={MapType.Satellite}
@@ -55,11 +77,16 @@ export const MapScreen = () => {
   //   }}
   // />
 
+  if (loading) {
+    return <Loading></Loading>
+  }
 
   return (
     <View style={styles.root}>
       <Sidebar open={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onOpenChange={setShowMenu}>
-        <View absR style={styles.btnGroup}><FloatButton icon='menu' onClick={() => setShowMenu(true)} /></View>
+        <View absR style={styles.btnGroup}><FloatButton icon='menu' onClick={() => setShowMenu(true)} />
+          <FloatButton style={{ marginTop: 8 }} icon='download' onClick={() => downloadTemplate()} /></View>
+        {/* {loading && <LoaderScreen color={Colors.primary} message="下载数据中..." overlay />} */}
       </Sidebar>
     </View>
   );

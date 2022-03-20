@@ -8,14 +8,13 @@ import { Colors } from "../config";
 
 const renderItem = ({ item, onClick }) => {
   return <ListItem key={item.id} style={styles.listItem} onPress={onClick}>
-    <Text>
-      {item.fixedPointNameAndBugName}
-    </Text>
+    {item.isWarn === '0' && <View style={styles.dot} />}
+    <View center flex><Text>{item.fixedPointNameAndBugName}</Text></View>
   </ListItem>
 }
 
 
-export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange }) => {
+export const Sidebar = ({ open: propsOpen, children, onOpenChange }) => {
   const navigation = useNavigation()
   const ref = React.useRef(null)
   const openRef = React.useRef(propsOpen)
@@ -52,7 +51,7 @@ export const Sidebar = ({ dataSource, open: propsOpen, children, onOpenChange })
 
 
   const handleClick = index => {
-    const { deviceId, templateId } = dataSource[index]
+    const { deviceId, templateId } = templateFixedPointList[index]
     navigation.navigate('CreateStep1', {
       deviceId,
       templateId
@@ -107,6 +106,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomColor: "#eeeeee",
     borderBottomWidth: 1,
-    paddingHorizontal: 8
+    paddingHorizontal: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    marginRight: 6,
+    borderRadius: 4,
+    backgroundColor: '#f00'
   }
 });

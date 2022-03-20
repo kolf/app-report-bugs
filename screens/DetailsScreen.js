@@ -20,16 +20,14 @@ export const DetailsScreen = ({ route }) => {
       key: -1,
       dataIndex: 'index',
       title: '序号'
-    }, ...templateCellDataVOMatrix[0].reduce((result, item) => {
-      if (!result.find(r => item.templateCellId === r.key)) {
-        result.push({
-          key: item.templateCellId,
-          dataIndex: 'cell-' + item.templateCellId,
-          title: item.templateCellName
-        })
+    }, ...templateCellDataVOMatrix.map(items => {
+      const { templateCellId, templateCellName, } = items[0]
+      return {
+        key: templateCellId,
+        dataIndex: 'cell-' + templateCellId,
+        title: templateCellName
       }
-      return result
-    }, [])]
+    })]
   }, [templateDetailsData])
 
 
@@ -37,7 +35,38 @@ export const DetailsScreen = ({ route }) => {
     if (!templateDetailsData) {
       return []
     }
-    const { templateCellDataVOMatrix = [[]] } = templateDetailsData;
+    const { templateCellDataVOMatrix = [] } = templateDetailsData;
+
+    return templateCellDataVOMatrix.reduce((result, items, index) => {
+      items.forEach((item, i) => {
+        const id = 'index-' + i;
+        if (!result.find(r => r.id === id)) {
+          result[i] = {
+            id,
+            index: index + 1,
+            ['cell-' + item.templateCellId]: item.data
+          }
+        } else {
+          result[i] = {
+            id,
+            ...result[i],
+            ['cell-' + item.templateCellId]: item.data
+          }
+        }
+      })
+      return result
+      // const id = 'index-' + index
+      // if (!result.find(r => r.id === id)) {
+      //   result.push({
+      //     index: index + 1,
+      //     ['cell-' + item.templateCellId]: item.data
+      //   })
+      // }
+
+      return result
+    }, [])
+
+    console.log(templateCellDataVOMatrix, templateCellDataVOMatrix.length, 'templateCellDataVOMatrix')
 
     return templateCellDataVOMatrix[0].map((item, index) => {
       return {
@@ -47,18 +76,20 @@ export const DetailsScreen = ({ route }) => {
     })
   }, [templateDetailsData])
 
-  console.log(error, loading, positionData, 'loading')
+  // console.log(error, loading, templateDetailsData?.imageList, 'loading')
 
   if (loading) {
     return <Loading flex />
   }
+
+  console.log(templateDetailsData, 'templateDetailsData')
 
   if (error) {
     return <Error />
   }
 
   return (
-    <ScrollView>
+    <ScrollView style={{ flex: 1 }}>
       <View paddingV-12 paddingH-16><Text text70>监测数据</Text></View>
       <FormList>
         <FormItem label='监测点位'>
@@ -96,7 +127,7 @@ export const DetailsScreen = ({ route }) => {
       <View backgroundColor='#fff' paddingV-12>
         <ImagePicker
           showAddBtn={false}
-          files={[1, 2]?.map(item => ({ url: `https://raw.githubusercontent.com/wix/react-native-ui-lib/master/demo/src/assets/images/card-example.jpg` }))}
+          files={(templateDetailsData?.imageList || []).map(item => ({ url: item }))}
         />
       </View>
       <View paddingV-12 paddingH-16><Text text70>备注</Text></View>

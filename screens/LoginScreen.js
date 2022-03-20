@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // import { signInWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { View, Text, Button } from 'react-native-ui-lib'
@@ -18,15 +19,15 @@ export const LoginScreen = ({ navigation }) => {
     useTogglePasswordVisibility();
 
   const handleLogin = async (values) => {
-    setUser({})
-    // const res = await getToken(values)
-    // console.log(values, res, 'values')
+    // setUser({})
+    try {
+      const res = await getToken(values)
+      const res1 = await AsyncStorage.setItem('token', res.access_token)
+      const userRes = await getUser(res.access_token)
+      setUser(userRes.sysUser)
+    } catch (error) {
 
-    // const { username, password } = values;
-    // signInWithEmailAndPassword(auth, username, password).catch(error =>
-    //   setErrorState(error.message)
-    // );
-    // navigation.navigate('Tab')
+    }
   };
   return (
     <>
@@ -34,7 +35,7 @@ export const LoginScreen = ({ navigation }) => {
         <KeyboardAwareScrollView enableOnAndroid={true}>
           {/* LogoContainer: consits app logo and screen title */}
           <View center paddingV-40>
-            <Logo uri={Images.logo} />
+            <Logo uri={Images.login} />
             <Text text40 marginT-20>智慧病虫害</Text>
           </View>
           <Formik

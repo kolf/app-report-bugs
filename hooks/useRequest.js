@@ -1,6 +1,7 @@
 import useSWR from "swr";
-import fetch from "unfetch";
+import axios from "axios";
 import queryString from "query-string";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_ROOT = {
   "/api/dreamdeck": "https://test.dreamdeck.cn:10443",
@@ -9,25 +10,28 @@ const API_ROOT = {
 };
 
 export const getFetcher = async (url, method, data, headers) => {
-  console.log(url, data, method)
   const apiRootKey = (url.match(/(\/api\/\w+)\//) || [])[1];
+  // console.log(apiRootKey, url.replace(apiRootKey, API_ROOT[apiRootKey]), 'apiRootKey', data)
+  console.log(data, url, 'API')
   try {
-    const res = await fetch(url.replace(apiRootKey, API_ROOT[apiRootKey]), {
+    const token = AsyncStorage.getItem('token')
+    const res = await axios({
+      url: /^https/.test(url) ? url : url.replace(apiRootKey, API_ROOT[apiRootKey]),
       method: method || "GET",
       headers: {
         "Content-Type": "application/json",
+        'Authorization': `Bearer ${token}`,
         ...headers
       },
-      data,
+      data
     })
-    const resData = await res.json()
-    // console.log(url, resData, 'API--')
+    const resData = res.data
     if (resData.code !== 0) {
       throw new Error(resData.msg)
     }
     return Promise.resolve(resData.data)
   } catch (error) {
-    // console.error(error.message, 'error')
+    console.error(error, url, data, 'error')
     return Promise.reject(error)
   }
 };

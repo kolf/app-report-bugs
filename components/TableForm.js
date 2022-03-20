@@ -6,14 +6,18 @@ import { Colors } from '../config'
 const TableRow = ({ index, dataSource, columns, onChange, readOnly }) => {
   return (
     <View row backgroundColor={index % 2 ? '#fff' : '#f5f5f5'}>
-      {columns.map((column) => (
+      {columns.map((column, i) => (
         <View
           flex
           center
-          key={'col-' + column.dataIndex}
+          key={'col-' + column.dataIndex + '-' + i}
           style={styles.col}
         >
-          {column.dataIndex !== 'index' && !readOnly ? <TextInput style={styles.input} value={dataSource[column.dataIndex]} onChangeText={value => onChange(index, column.dataIndex, value)} /> : <Text>{dataSource[column.dataIndex]}</Text>}
+          {column.dataIndex !== 'index' && !readOnly ? <TextInput autoComplete='cc-number' style={styles.input} value={dataSource[column.dataIndex]} onChangeText={value => {
+            const nextValue = value.replace(/[^\d]+/, '');
+            console.log(nextValue, 'nextValue')
+            onChange(index, column.dataIndex, nextValue)
+          }} /> : <Text>{dataSource[column.dataIndex]}</Text>}
         </View>
       ))}
     </View>
@@ -64,9 +68,9 @@ export const TableForm = ({ dataSource = [], columns, loading, readOnly, onChang
   return (
     <View>
       <View row backgroundColor={Colors.border}>
-        {columns.map((column) => (
+        {columns.map((column, index) => (
           <View
-            key={'header-' + column.dataIndex}
+            key={'header-' + column.dataIndex + '-' + index}
             flex
             center
             style={styles.col}
@@ -80,7 +84,7 @@ export const TableForm = ({ dataSource = [], columns, loading, readOnly, onChang
           <View row>
             {columns.map((column, index) => (
               <View
-                key={'total-' + column.dataIndex}
+                key={'total-' + column.dataIndex + '-' + index}
                 flex
                 center
                 style={styles.col}
@@ -93,7 +97,7 @@ export const TableForm = ({ dataSource = [], columns, loading, readOnly, onChang
       <View row backgroundColor={Colors.border}>
         {columns.map((column, index) => (
           <View
-            key={'mean-' + column.dataIndex}
+            key={'mean-' + column.dataIndex + '-' + index}
             flex
             center
             style={styles.col}

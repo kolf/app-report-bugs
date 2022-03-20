@@ -8,11 +8,14 @@ import { getFetcher, useRequest } from "./useRequest";
 
 
 export const useInfiniteTemplate = (params) => {
-  console.log(params, 'params')
+  // console.log(params, 'params')
   const PAGE_SIZE = 16;
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite((index) => `/api/bjtzh/pest/fixed/point/pageFixedPointRecord?itemId=1&size=${PAGE_SIZE}&current=${index + 1}&${queryString.stringify(params)}`, async (url) => {
     const res = await getFetcher(url);
     return res.records
+  }, {
+    revalidateOnReconnect: false, revalidateIfStale: false,
+    revalidateOnFocus: false,
   });
 
   const issues = data ? [].concat(...data) : [];
@@ -39,55 +42,34 @@ export const useInfiniteTemplate = (params) => {
 
 export const useAllTemplateData = () => {
   const { mutate } = useSWRConfig();
-  const [loading, setLoading] = React.useState(false);
 
-  const run = React.useCallback((list) => {
+
+  // const [loading, setLoading] = React.useState(false);
+
+  const run = (list) => {
     if (!list) {
-      return;
+      return Promise.resolve([])
     }
-    const url = `/api/dreamdeck/weather/heweather/now?location=101010600`;
-
-    setLoading(true);
-    const total = list.length * 2 + 1;
-    let result = [];
-    try {
-      mutate(
-        url,
-        getFetcher(url, null)
-          .then((res) => pushResult(res))
-          .catch((error) => pushResult(error))
+    return Promise.all([() => mutate(
+      url,
+      getFetcher(url, null)
+    ), ...list.map((item) => {
+      const { deviceId, templateId } = item;
+      const url1 = `/api/bjtzh/pest/point/position/getPointInfoBy/${deviceId}`;
+      return () => mutate(
+        url1,
+        getFetcher(url1, null)
       );
-      list.forEach((item) => {
-        const { deviceId, templateId } = item;
-        const url1 = `/api/bjtzh/pest/point/position/getPointInfoBy/${deviceId}`;
-        const url2 = `/api/bjtzh/pest/template/getTemplateInfoBy/${templateId}?Tenant-Id=25`;
-        mutate(
-          url1,
-          getFetcher(url1, null)
-            .then((res) => pushResult(res))
-            .catch((error) => pushResult(error))
-        );
-        mutate(
-          url2,
-          getFetcher(url2, null, { "Tenant-Id": 25 })
-            .then((res) => pushResult(res))
-            .catch((error) => pushResult(error))
-        );
-      });
-    } catch (error) {
-      setLoading(false);
-    }
-
-    const pushResult = (res) => {
-      result.push(res);
-      if (result.length === total) {
-        setLoading(false);
-      }
-      return res;
-    };
-  }, []);
-
-  return { run, loading };
+    }), ...list.map(item => {
+      const { deviceId, templateId } = item;
+      const url2 = `/api/bjtzh/pest/template/getTemplateInfoBy/${templateId}?Tenant-Id=25`;
+      return () => mutate(
+        url2,
+        getFetcher(url2, null, { "Tenant-Id": 25 })
+      );
+    })])
+  }
+  return { run };
 };
 
 export const useMarkerTemplate = () => {
@@ -125,7 +107,7 @@ export const useUserTemplateList = () => {
     return Object.entries(data).reduce((result, item) => {
       const [key, value] = item;
       if (key === "_fileList") {
-        result.imageList = value.map((item) => item.url);
+        result.imageList = value.map((item) => item.url || item);
         return result;
       }
 
@@ -140,8 +122,13 @@ export const useUserTemplateList = () => {
           result[key] = value;
         }
       }
-      return result;
-    }, {});
+      return result
+    }, {
+      itemId: 1,
+      // "monitorAvg": 5,
+      // "monitorSum": 15,
+      // "phenology": 1,
+    });
   }, []);
 
   const get = React.useCallback(
@@ -156,11 +143,13 @@ export const useUserTemplateList = () => {
 
   const remove = React.useCallback(
     async (data) => {
+
       try {
+        const nextData = await uploadList([data])
         const res = await getFetcher(
           `/api/bjtzh/pest/fixed/point/saveFixedPointRecord`,
           "POST",
-          _makeData(data)
+          _makeData(nextData[0])
         );
       } catch (error) {
         return Promise.reject(error)
@@ -168,12 +157,37 @@ export const useUserTemplateList = () => {
       const nextList = list.filter((item) => item.id !== data.id);
       AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
-      mutate(
-        `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
-      );
+      // mutate(
+      //   `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
+      // );
     },
     [list]
   );
+
+  const removeAll = React.useCallback(
+    async (data) => {
+      try {
+        const nextData = await uploadList(data)
+        const res = await getFetcher(
+          `/api/bjtzh/pest/fixed/point/saveBatchFixedPointRecord`,
+          "POST",
+          data.map(nextData)
+        );
+
+        console.log(res, 'res')
+
+        AsyncStorage.setItem("userTemplateList", JSON.stringify([]));
+        refresh([]);
+        // return mutate(
+        //   `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
+        // );
+      } catch (error) {
+        return Promise.reject(error)
+      }
+
+    },
+    []
+  )
 
   const clearAll = () => {
     AsyncStorage.setItem("userTemplateList", JSON.stringify([]));
@@ -206,7 +220,7 @@ export const useUserTemplateList = () => {
     [list]
   );
 
-  return { get, update, remove, add, data: list || [], isValidating, clearAll };
+  return { get, update, remove, removeAll, add, data: list || [], isValidating, clearAll };
 };
 
 export const useMarkerList = () => {
@@ -307,18 +321,56 @@ export const useLogin = () => {
 
   const getToken = async (values) => {
     try {
-      const res = await getFetcher('/api/dreamdeck/auth/oauth/token?grant_type=password', 'POST', values);
-      console.log(res, 'res')
+      // https://test.dreamdeck.cn/auth/oauth/token?username=gyy&password=123456&grant_type=password
+      const res = await getFetcher(`/api/bjtzh/auth/oauth/token?grant_type=password&password=${values.password}&username=${values.username}`, 'POST', values, {
+        "Authorization": 'Basic ZGQ6ZGQ=',
+        "TENANT_ID": '1',
+        "Content-Type": 'application/x-www-form-urlencoded;charset=UTF-8'
+      });
+      return res
     } catch (error) {
       console.error(error, 'error')
     }
   }
 
   const getUser = (token) => {
-    getFetcher('/api/dreamdeck/admin/user/token/info', 'GET', null, token)
+    return getFetcher('/api/bjtzh/admin/user/token/info', 'GET', null, {
+      'Tenant-Id': 1,
+      "Content-Type": 'application/x-www-form-urlencoded;charset=UTF-8',
+      'Authorization': `Bearer ${token}`
+    })
   }
-
-
-
   return { getUser, getToken, data, error }
 }
+
+const uploadList = async (list) => {
+  const upload = async (url) => {
+    const filename = url.split('/').pop();
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
+
+    const source = {
+      name: 'file',
+      bucketName: `pest`,
+      type
+    }
+    let formData = new FormData();
+    formData.append("filename", source);
+    const res = await getFetcher('/api/bjtzh/admin/file/upload', 'POST', formData, {
+      'Content-Type': 'multipart/form-data',
+      "Tenant-Id": '1'
+    });
+    console.log(res, 'res')
+  }
+
+  try {
+    const res = await Promise.all(list.map(item => Promise.all(item._fileList.map(image => upload(image.url)))));
+
+    console.log(res, 'upload')
+
+    return Promise.resolve(list)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+

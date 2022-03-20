@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Alert } from "react-native";
 import { Button } from 'react-native-ui-lib'
 import { Colors } from '../config'
 import { InlineForm, DateRange, TableView, Picker } from '../components'
+import { AuthenticatedUserContext } from "../providers";
 import { useDistrict, useBugCategory, useInfiniteTemplate, useUserTemplateList } from "../hooks/useData";
 import { makeTableCellData } from "../lib/makeData";
 
@@ -52,7 +53,9 @@ const makeQuery = (values) => {
 
 
 export const MyListScreen = ({ navigation }) => {
+  const { user } = React.useContext(AuthenticatedUserContext)
   const [query, setQuery] = React.useState({
+    userId: user.userId
     // district: '',
     // bugId: '',
     // startMonitorTime: '',
@@ -63,7 +66,7 @@ export const MyListScreen = ({ navigation }) => {
   const { data, error, isLoading, setSize, size, isValidating, isRefreshing, onRefresh } = useInfiniteTemplate(makeQuery(query))
   const { data: districtRange = [] } = useDistrict()
   const { data: bugCategoryRange = [] } = useBugCategory()
-  const { data: userTemplateList = [], remove, clearAll } = useUserTemplateList();
+  const { data: userTemplateList = [], removeAll } = useUserTemplateList();
 
   const makeData = React.useMemo(() => {
     if (!data || !userTemplateList) {
@@ -91,17 +94,17 @@ export const MyListScreen = ({ navigation }) => {
     }
 
     try {
-      const res = await Promise.all(uploadList.forEach(item => {
-        return remove({
+      const res = await removeAll(uploadList.map(item => {
+        return {
           ...item,
           templateCellDataMap: makeTableCellData(item._tableDataIndexMap, item._tableData, item._tableDataSize),   // [{index:1, cell-3:1, 
           "monitorAvg": 5,
           "monitorSum": 15,
           "phenology": 1,
-        })
+        }
       }))
     } catch (error) {
-      Alert.alert(`同步出错了~`)
+      // Alert.alert(`同步出错了~`)
     }
   }
 
@@ -133,7 +136,7 @@ export const MyListScreen = ({ navigation }) => {
         <Picker placeholder='请选择区域' options={[defaultOption, ...districtRange]} name='district' />
         <DateRange name='date' width='70%' />
         <Button width='30%' backgroundColor={Colors.primary} size='small' borderRadius={0} label='上传数据' onPress={uploadUserTemplate} />
-        <Button width='100%' size='small' borderRadius={0} label='删除全部数据' onPress={clearAll} />
+        {/* <Button width='100%' size='small' borderRadius={0} label='删除全部数据' onPress={clearAll} /> */}
       </InlineForm>
       <TableView rowKey="key" pageProps={
         {

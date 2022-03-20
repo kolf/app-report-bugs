@@ -6,7 +6,7 @@ import { Colors } from '../config';
 export const Loading = (props) => {
   return (
     <View style={styles.root} center {...props}>
-      <ActivityIndicator size='large' color={Colors.success} />
+      <ActivityIndicator size='large' />
     </View>
   );
 };

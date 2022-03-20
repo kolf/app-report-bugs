@@ -1,5 +1,6 @@
 export const Images = {
   logo: require('../assets/flame.png'),
+  login: require('../assets/login.png'),
   empty: require('../assets/empty.png'),
   error: require('../assets/error.png'),
   fangchong1: require('../assets/fangchong1.png'),
