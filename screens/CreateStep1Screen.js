@@ -71,7 +71,7 @@ export const CreateStep1Screen = ({ route, navigation }) => {
     })
   }
 
-  console.log(user, 'user')
+  // console.log(user, 'user')
 
   const handleNext = () => {
     const data = {
@@ -87,7 +87,8 @@ export const CreateStep1Screen = ({ route, navigation }) => {
       deviceId: params.deviceId,
       templateId: params.templateId,
       weather: weatherData?.text,
-      temperature: weatherData?.temp
+      temperature: weatherData?.temp,
+      _district: positionData?.district
     }
     if (currentUserTemplate) {
       updateUserTemplate(data)

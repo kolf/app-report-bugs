@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import * as React from "react";
 
 //获取当前日期，格式YYYY-MM-DD
 function getFormatDay(date: Date) {
@@ -32,14 +32,17 @@ function completeDate(value) {
 }
 
 export const useLocalDate = () => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = React.useState(new Date());
+  const timer = React.useRef(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
+  React.useEffect(() => {
+    timer.current = setInterval(() => {
       setDate(new Date());
     }, 1000);
     return () => {
-      clearInterval(timer);
+      console.log("unfff");
+      clearInterval(timer.current);
+      timer.current = null;
     };
   }, []);
 

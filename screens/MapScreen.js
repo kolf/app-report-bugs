@@ -23,7 +23,7 @@ export const MapScreen = () => {
   const { data: markerList } = useMarkerList()
   const { data: userTemplateList } = useUserTemplateList()
   const { run: getMarkerTemplate } = useMarkerTemplate()
-  const { data: templateFixedPointList } = useTemplateFixedPoint()
+  const { data: templateFixedPointList, refresh, isValidating } = useTemplateFixedPoint()
   const { run } = useAllTemplateData()
   // const { data: markerList } = useMarkerList();
 
@@ -83,7 +83,7 @@ export const MapScreen = () => {
 
   return (
     <View style={styles.root}>
-      <Sidebar open={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onOpenChange={setShowMenu}>
+      <Sidebar onRefresh={refresh} refreshing={isValidating} open={showMenu} dataSource={mekeTemplateFixedPointList(templateFixedPointList)} onOpenChange={setShowMenu}>
         <View absR style={styles.btnGroup}><FloatButton icon='menu' onClick={() => setShowMenu(true)} />
           <FloatButton style={{ marginTop: 8 }} icon='download' onClick={() => downloadTemplate()} /></View>
         {/* {loading && <LoaderScreen color={Colors.primary} message="下载数据中..." overlay />} */}

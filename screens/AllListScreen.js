@@ -99,7 +99,7 @@ export const AllListScreen = ({ navigation }) => {
           size,
           setSize
         }
-      } loading={isLoading} showDot columns={columns} dataSource={makeData} onClick={handleClick} />
+      } showDot columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };

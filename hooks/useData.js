@@ -26,8 +26,7 @@ export const useInfiniteTemplate = (params) => {
   const isEmpty = data?.[0]?.length === 0;
   const isReachingEnd =
     isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
-  const isRefreshing = isValidating && data && data.length === size;
-
+  const isRefreshing = !!(isValidating && data && data.length === size);
 
   return {
     data: issues,
@@ -86,7 +85,7 @@ export const useMarkerTemplate = () => {
   return { run };
 };
 
-export const useUserTemplateList = () => {
+export const useUserTemplateList = (query) => {
   // AsyncStorage.removeItem('userTemplateList')
   const { mutate } = useSWRConfig();
 
@@ -94,10 +93,27 @@ export const useUserTemplateList = () => {
     data: list,
     mutate: refresh,
     isValidating,
-  } = useSWR("userTemplateList", async () => {
+  } = useSWR(`userTemplateList`, async () => {
     try {
       const res = await AsyncStorage.getItem("userTemplateList");
       return res ? JSON.parse(res) : []
+      // return (res ? JSON.parse(res) : []).filter(item => {
+      //   console.log(item, query, 'query')
+      //   let flag = true
+      //   if (query.bugId && item.bugId * 1 !== query.bugId * 1) {
+      //     flag = false
+      //   } else if (query.date && query.date.length > 0) {
+      //     const [startDate, endDate] = query.date;
+      //     if (new Date(startDate).getTime() > new Date(item.recordTime) || new Date(endDate).getTime() < new Date(item.recordTime)) {
+      //       flag = false
+      //     }
+      //   } else if (query.district && item.district !== item.district) {
+      //     flag = false
+      //   } else if (query.endMonitorTime && new Date(query.endMonitorTime).getTime() > item.recordTime) {
+      //     flag = false
+      //   }
+      //   return flag
+      // })
     } catch (error) {
       return [];
     }
@@ -145,11 +161,11 @@ export const useUserTemplateList = () => {
     async (data) => {
 
       try {
-        const nextData = await uploadList([data])
+        // const nextData = await uploadList([data])
         const res = await getFetcher(
           `/api/bjtzh/pest/fixed/point/saveFixedPointRecord`,
           "POST",
-          _makeData(nextData[0])
+          _makeData(data)
         );
       } catch (error) {
         return Promise.reject(error)
@@ -157,9 +173,9 @@ export const useUserTemplateList = () => {
       const nextList = list.filter((item) => item.id !== data.id);
       AsyncStorage.setItem("userTemplateList", JSON.stringify(nextList));
       refresh(nextList);
-      // mutate(
-      //   `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
-      // );
+      mutate(
+        `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
+      );
     },
     [list]
   );
@@ -167,20 +183,20 @@ export const useUserTemplateList = () => {
   const removeAll = React.useCallback(
     async (data) => {
       try {
-        const nextData = await uploadList(data)
+        // const nextData = await uploadList(data)
         const res = await getFetcher(
           `/api/bjtzh/pest/fixed/point/saveBatchFixedPointRecord`,
           "POST",
-          data.map(nextData)
+          data.map(item => _makeData(item))
         );
 
         console.log(res, 'res')
 
         AsyncStorage.setItem("userTemplateList", JSON.stringify([]));
         refresh([]);
-        // return mutate(
-        //   `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
-        // );
+        return mutate(
+          `/api/bjtzh/pest/device/template/templateFixedPointDetailInfo?itemId=1`
+        );
       } catch (error) {
         return Promise.reject(error)
       }

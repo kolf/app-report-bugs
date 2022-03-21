@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet, FlatList, RefreshControl } from "react-native";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
-import { View, Text, ListItem, } from "react-native-ui-lib";
+import { View, Text, ListItem, Incubator, Button } from "react-native-ui-lib";
 import { useUserTemplateList, useTemplateFixedPoint } from '../hooks/useData'
 import { Colors } from "../config";
 
@@ -13,15 +13,36 @@ const renderItem = ({ item, onClick }) => {
   </ListItem>
 }
 
+const SearchInput = ({ onSearch }) => {
+  const [value, setValue] = React.useState('')
+  return <Incubator.TextField
+    onChangeText={setValue}
+    value={value}
+    validate={['required']}
+    containerStyle={styles.input}
+    fieldStyle={styles.fieldStyle}
+    placeholder='请输入模板名称'
+    trailingAccessory={<Button size='small' backgroundColor={Colors.success} borderRadius={0} label='搜索' onPress={() => onSearch(value)} />}
+  />
+}
 
-export const Sidebar = ({ open: propsOpen, children, onOpenChange }) => {
+export const Sidebar = ({ dataSource, open: propsOpen, refreshing, onRefresh, children, onOpenChange }) => {
   const navigation = useNavigation()
   const ref = React.useRef(null)
   const openRef = React.useRef(propsOpen)
-  const { data: userTemplateList } = useUserTemplateList()
-  const { data: templateFixedPointList, error, loading, refresh } = useTemplateFixedPoint();
+  const [value, setValue] = React.useState('')
 
-  // console.log(templateFixedPointList, error, 'error')
+
+  const memoData = React.useMemo(() => {
+    if (!value) {
+      return dataSource
+    }
+
+    const re = new RegExp(value)
+    return dataSource.filter(item => {
+      return re.test(item.fixedPointNameAndBugName)
+    })
+  }, [dataSource, value])
 
   React.useEffect(() => {
     // console.log(propsOpen)
@@ -32,26 +53,8 @@ export const Sidebar = ({ open: propsOpen, children, onOpenChange }) => {
 
   }, [propsOpen, ref, openRef])
 
-  const mekeTemplateFixedPointList = React.useCallback((data) => {
-    if (!data) {
-      return []
-    }
-    return data.map(item => {
-      const id = item.deviceId + '-' + item.templateId
-      if ((userTemplateList || []).find(u => u.id === id)) {
-        return {
-          ...item,
-          id,
-          isWarn: '2'
-        }
-      }
-      return { ...item, id }
-    })
-  }, [userTemplateList])
-
-
   const handleClick = index => {
-    const { deviceId, templateId } = templateFixedPointList[index]
+    const { deviceId, templateId } = memoData[index]
     navigation.navigate('CreateStep1', {
       deviceId,
       templateId
@@ -64,22 +67,8 @@ export const Sidebar = ({ open: propsOpen, children, onOpenChange }) => {
   }
 
 
-  const renderDrawer = () => {
-    return (
-      <FlatList
-        ListEmptyComponent={<View height={400} center><Text text70>暂无数据</Text></View>}
-        refreshing={loading}
-        onRefresh={refresh}
-        data={mekeTemplateFixedPointList(templateFixedPointList)}
-        renderItem={({ item, index }) => renderItem({
-          item, onClick() {
-            handleClick(index)
-          }
-        })}
-        keyExtractor={item => item.id}
-      />
-    );
-  };
+
+  console.log(dataSource, memoData, 'data')
 
   return (
     <DrawerLayout
@@ -88,7 +77,21 @@ export const Sidebar = ({ open: propsOpen, children, onOpenChange }) => {
       drawerPosition={DrawerLayout.positions.Right}
       drawerType="front"
       drawerBackgroundColor="#fff"
-      renderNavigationView={renderDrawer}
+      renderNavigationView={() => <FlatList
+        ListHeaderComponent={<SearchInput onSearch={setValue} />}
+        ListEmptyComponent={<View height={400} center><Text text70>暂无数据</Text></View>}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        data={memoData}
+        renderItem={({ item, index }) => renderItem({
+          item, onClick() {
+            handleClick(index)
+          }
+        })}
+        keyExtractor={(item, i) => {
+          return item.id + '-' + i
+        }}
+      />}
       onDrawerOpen={() => handleOpen(true)}
       onDrawerClose={() => handleOpen(false)}
     >
@@ -104,9 +107,10 @@ const styles = StyleSheet.create({
   listItem: {
     height: 50,
     alignItems: 'center',
-    borderBottomColor: "#eeeeee",
-    borderBottomWidth: 1,
-    paddingHorizontal: 8,
+    borderTopColor: "#eeeeee",
+    borderTopWidth: 1,
+    marginTop: -1,
+    marginLeft: 12
   },
   dot: {
     width: 8,
@@ -114,5 +118,13 @@ const styles = StyleSheet.create({
     marginRight: 6,
     borderRadius: 4,
     backgroundColor: '#f00'
+  },
+  input: {
+    padding: 12
+  },
+  fieldStyle: {
+    backgroundColor: '#f5f5f5',
+    height: 30,
+    paddingLeft: 12
   }
 });

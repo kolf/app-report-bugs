@@ -37,7 +37,6 @@ const renderItem = ({ dataSource, showDot, columns, onClick }) => {
 export const TableView = ({
   columns = [],
   dataSource = [],
-  loading,//TODO
   showDot,
   onClick,
   pageProps,
@@ -62,24 +61,22 @@ export const TableView = ({
           </View>
         ))}
       </View>
-      {loading ? <Loading height={300} /> : (dataSource.length > 0 ? <VirtualizedList
-        ListEmptyComponent={<View />}
+      <FlatList
+        ListEmptyComponent={<Empty height={300} />}
         renderItem={(data) => renderItem({
           dataSource: data.item, columns, showDot, onClick() {
             onClick(data.item)
           }
         })}
-        keyExtractor={(item) => item[rowKey]}
+        keyExtractor={(item, index) => item[rowKey] + '-' + index}
         data={dataSource}
-        getItemCount={() => dataSource.length}
-        getItem={getItem}
         style={styles.body}
         onEndReachedThreshold={1} //距离底部半屏触发事件
         initialNumToRender={4}
-        onEndReached={() => pageProps.setSize(pageProps.size + 1)}
-        refreshing={pageProps.isRefreshing}
-        onRefresh={pageProps.onRefresh}
-      /> : <Empty height={300} />)}
+        onEndReached={() => pageProps?.setSize(pageProps.size + 1)}
+        refreshing={pageProps?.isRefreshing}
+        onRefresh={pageProps?.onRefresh}
+      />
     </View>
   );
 }

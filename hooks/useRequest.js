@@ -42,7 +42,7 @@ export const useRequest = (name, args, options) => {
       ? `${name}?${queryString.stringify(args)}`
       : name;
 
-  const { data, error, mutate } = useSWR(url, async (url) =>
+  const { data, error, mutate, isValidating } = useSWR(url, async (url) =>
     getFetcher(url, options.method, options.data)
   );
 
@@ -55,5 +55,6 @@ export const useRequest = (name, args, options) => {
     loading: !error && !data,
     refresh: mutate,
     error,
+    isValidating
   };
 };

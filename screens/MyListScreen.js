@@ -66,7 +66,7 @@ export const MyListScreen = ({ navigation }) => {
   const { data, error, isLoading, setSize, size, isValidating, isRefreshing, onRefresh } = useInfiniteTemplate(makeQuery(query))
   const { data: districtRange = [] } = useDistrict()
   const { data: bugCategoryRange = [] } = useBugCategory()
-  const { data: userTemplateList = [], removeAll } = useUserTemplateList();
+  const { data: userTemplateList = [], removeAll } = useUserTemplateList(query);
 
   const makeData = React.useMemo(() => {
     if (!data || !userTemplateList) {
@@ -144,7 +144,7 @@ export const MyListScreen = ({ navigation }) => {
           size,
           setSize
         }
-      } loading={isLoading} showDot columns={columns} dataSource={makeData} onClick={handleClick} />
+      } showDot columns={columns} dataSource={makeData} onClick={handleClick} />
     </View>
   );
 };
